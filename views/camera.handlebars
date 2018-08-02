@@ -1,0 +1,90 @@
+<!-- /. NAV SIDE  -->
+<nav class="navbar-default navbar-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav" id="main-menu">
+
+            <li>
+                <a href="home"><i class="fa fa-dashboard"></i> Dashboard</a>
+            </li>
+            <li>
+                <a href="control"><i class="fa fa-list-alt"></i> Control</a>
+            </li>
+            <li>
+                <a href="scenes"><i class="fa fa-picture-o"></i> Scenes</a>
+            </li>
+            <li>
+                <a href="chart"><i class="fa fa-bar-chart-o"></i> Charts</a>
+            </li>
+            <li>
+                <a class="active-menu"><i class="fa fa-camera"></i> Camera</a>
+            </li>
+
+            <li>
+                <a href="gps"><i class="fa fa-table"></i> Members Tracker</a>
+            </li>
+            <li>
+                <a href="chat"><i class="fa fa-edit"></i> Chat </a>
+            </li>
+            <li>
+                <a href="form.html"><i class="fa fa-fw fa-file"></i> Empty Page</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- put this before page inner (body) to load every scripts before body -->
+
+<script src="dist/face-api.js"></script>
+<script src="commons.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<!-- /. PAGE WRAPPER  -->
+<div id="page-wrapper" >
+    <div id="page-inner">
+
+        <h2> SECURITY CAMERA</h2>
+        <br>
+        <div style="position: relative" class="margin">
+            <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
+            <canvas id="overlay"></canvas>
+        </div>
+
+    </div>
+</div>
+
+<!-- put this func after body to load it right after every content on page loaded -->
+<script>
+    const MODEL_URL = 'weights';
+
+
+    $(document).ready(function() {
+        run()
+    });
+
+    //everthing has to be ran in this function in order for camera to work
+    async function run() {
+        // load the models
+        await faceapi.loadMtcnnModel(MODEL_URL);
+        await faceapi.loadFaceRecognitionModel(MODEL_URL);
+
+        // try to access users webcam and stream the images
+        // to the video element
+        const videoEl = document.getElementById('inputVideo');
+        navigator.getUserMedia(
+                { video: {} },
+                stream => videoEl.srcObject = stream,
+                err => console.error(err)
+        );
+        const mtcnnForwardParams = {
+            // number of scaled versions of the input image passed through the CNN
+            // of the first stage, lower numbers will result in lower inference time,
+            // but will also be less accurate
+            maxNumScales: 10,
+            // scale factor used to calculate the scale steps of the image
+            // pyramid used in stage 1
+            scaleFactor: 0.709,
+            // the score threshold values used to filter the bounding
+            // boxes of stage 1, 2 and 3
+            scoreThresholds: [0.6, 0.7, 0.7],
+            // mininum face size to expect, the higher the faster processing will be,
+            // bu
