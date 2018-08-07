@@ -3,7 +3,87 @@
   <component name="ChangeListManager">
     <list default="true" id="81e80edd-b4c2-4e37-a6d2-dc63dcefadf7" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/camera.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/camera.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20170908_210219.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20170930_094919.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20170930_095115.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20170930_112706.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20170930_112754.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20170930_121058.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171104_113423.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171104_122649.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171104_122702.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171104_145016 (1).jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171111_131650.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171111_141135.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171111_141144.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171111_150307.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171111_150316.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171111_182301.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171111_182303.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171112_004039.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171112_004042.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20171229_113358.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/DSC02523.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/DSC02524.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/DSC02529.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/DSC02551.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/DSC02551_1.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/IMG_5200.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/IMG_5204.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/IMG_5205.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/IMG_5206.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ResizedPhotos.0 (1).zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ResizedPhotos.0 (1)/BulkResizePhotos.com.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ResizedPhotos.0.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/hung1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/hung2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/hung3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/hung4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/hung5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/hung6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/thu1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/thu2.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/thu3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/thu4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/thu5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/thu6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/va1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/va2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/va3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/va4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/va5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/va6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/commons.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/commons.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bbt1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bbt2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bbt3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bbt4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bbt5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bernadette/bernadette1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bernadette/bernadette2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bernadette/bernadette3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bernadette/bernadette4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/bernadette/bernadette5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/howard/howard1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/howard/howard2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/howard/howard3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/howard/howard4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/howard/howard5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/leonard/leonard1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/leonard/leonard2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/leonard/leonard3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/leonard/leonard4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/leonard/leonard5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/penny/penny1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/penny/penny2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/penny/penny3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/penny/penny4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/penny/penny5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/sheldon/sheldon1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/sheldon/sheldon2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/sheldon/sheldon3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/sheldon/sheldon4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/sheldon/sheldon5.png" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -30,9 +110,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="handlebars" value="14" />
+          <entry key="handlebars" value="15" />
           <entry key="jpg" value="2" />
-          <entry key="js" value="27" />
+          <entry key="js" value="29" />
           <entry key="json" value="5" />
           <entry key="png" value="1" />
           <entry key="ts" value="2" />
@@ -40,23 +120,23 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Handlebars/Mustache" value="14" />
+          <entry key="Handlebars/Mustache" value="15" />
           <entry key="Image" value="3" />
           <entry key="JSON" value="5" />
-          <entry key="JavaScript" value="27" />
+          <entry key="JavaScript" value="29" />
           <entry key="TypeScript" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="handlebars" value="2400" />
-          <entry key="js" value="710" />
+          <entry key="handlebars" value="2425" />
+          <entry key="js" value="756" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Handlebars/Mustache" value="2400" />
-          <entry key="JavaScript" value="710" />
+          <entry key="Handlebars/Mustache" value="2425" />
+          <entry key="JavaScript" value="756" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts">
@@ -71,26 +151,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12420">
-              <caret line="540" selection-start-line="540" selection-end-line="540" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/views/camera.handlebars">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="406">
-              <caret line="79" column="8" selection-start-line="79" selection-start-column="8" selection-end-line="79" selection-end-column="8" />
+            <state relative-caret-position="-289">
+              <caret line="210" column="37" selection-start-line="210" selection-start-column="12" selection-end-line="210" selection-end-column="37" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/views/camera1.handlebars">
+        <entry file="file://$PROJECT_DIR$/views/camera.handlebars">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="61">
-              <caret line="43" selection-start-line="43" selection-end-line="50" selection-end-column="16" />
+            <state relative-caret-position="23">
+              <caret line="84" column="30" selection-start-line="84" selection-start-column="30" selection-end-line="84" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/public/commons.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1196">
+              <caret line="52" column="20" lean-forward="true" selection-start-line="52" selection-start-column="20" selection-end-line="52" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -98,8 +178,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/dist/face-api.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="3628" column="14" selection-start-line="3628" selection-start-column="6" selection-end-line="3628" selection-end-column="14" />
+            <state relative-caret-position="1541">
+              <caret line="3313" column="45" selection-start-line="3313" selection-start-column="45" selection-end-line="3313" selection-end-column="45" />
             </state>
           </provider>
         </entry>
@@ -120,6 +200,7 @@
       <find>mtcnnResults</find>
       <find>allFacesMtcnn</find>
       <find>allFaces</find>
+      <find>Interval</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -133,7 +214,9 @@
         <option value="$PROJECT_DIR$/commons.js" />
         <option value="$PROJECT_DIR$/faceRecognition1.js" />
         <option value="$PROJECT_DIR$/index.js" />
+        <option value="$PROJECT_DIR$/views/layouts/main.handlebars" />
         <option value="$PROJECT_DIR$/views/camera.handlebars" />
+        <option value="$PROJECT_DIR$/public/commons.js" />
       </list>
     </option>
   </component>
@@ -158,8 +241,8 @@
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/package.json" />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="953" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="-7" />
     <option name="width" value="974" />
     <option name="height" value="1047" />
   </component>
@@ -191,6 +274,12 @@
               <item name="testFaceReg-2" type="b2602c69:ProjectViewProjectNode" />
               <item name="testFaceReg-2" type="462c0819:PsiDirectoryNode" />
               <item name="views" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="testFaceReg-2" type="b2602c69:ProjectViewProjectNode" />
+              <item name="testFaceReg-2" type="462c0819:PsiDirectoryNode" />
+              <item name="views" type="462c0819:PsiDirectoryNode" />
+              <item name="layouts" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -247,16 +336,15 @@
       <workItem from="1533305076880" duration="7695000" />
       <workItem from="1533572101856" duration="491000" />
       <workItem from="1533574633590" duration="602000" />
-      <workItem from="1533575832334" duration="10977000" />
+      <workItem from="1533575832334" duration="16924000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="58634000" />
+    <option name="totallyTimeSpent" value="64581000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="953" y="0" width="974" height="1047" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28952992" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -348,13 +436,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test1.js" />
-    <entry file="file://$PROJECT_DIR$/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12420">
-          <caret line="540" selection-start-line="540" selection-end-line="540" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/node_modules/face-api.js/dist/face-api.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-3083">
@@ -371,29 +452,43 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/public/dist/face-api.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="3628" column="14" selection-start-line="3628" selection-start-column="6" selection-end-line="3628" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/commons.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="782">
-          <caret line="34" column="43" lean-forward="true" selection-start-line="34" selection-start-column="43" selection-end-line="34" selection-end-column="43" />
+        <state relative-caret-position="1541">
+          <caret line="3313" column="45" selection-start-line="3313" selection-start-column="45" selection-end-line="3313" selection-end-column="45" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/views/camera1.handlebars">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="61">
-          <caret line="43" selection-start-line="43" selection-end-line="50" selection-end-column="16" />
+        <state relative-caret-position="-330">
+          <caret line="56" column="14" lean-forward="true" selection-start-line="56" selection-start-column="14" selection-end-line="56" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/layouts/main.handlebars">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-289">
+          <caret line="210" column="37" selection-start-line="210" selection-start-column="12" selection-end-line="210" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/views/camera.handlebars">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="406">
-          <caret line="79" column="8" selection-start-line="79" selection-start-column="8" selection-end-line="79" selection-end-column="8" />
+        <state relative-caret-position="23">
+          <caret line="84" column="30" selection-start-line="84" selection-start-column="30" selection-end-line="84" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/commons.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1196">
+          <caret line="52" column="20" lean-forward="true" selection-start-line="52" selection-start-column="20" selection-end-line="52" selection-end-column="20" />
         </state>
       </provider>
     </entry>
