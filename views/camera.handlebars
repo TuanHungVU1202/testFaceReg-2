@@ -36,15 +36,19 @@
 
 <script src="dist/face-api.js"></script>
 <script src="commons.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
 <!-- /. PAGE WRAPPER  -->
 <div id="page-wrapper" >
     <div id="page-inner">
+        <style>
+            video, canvas {
+                position: absolute;
+            }
 
+        </style>
         <h2> SECURITY CAMERA</h2>
         <br>
-        <div style="position: relative" class="margin">
+
             <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
             <canvas id="overlay"></canvas>
         </div>
@@ -54,37 +58,91 @@
 
 <!-- put this func after body to load it right after every content on page loaded -->
 <script>
-    const MODEL_URL = 'weights';
+    const MODEL_URL = '/weights';
+
+    let modelLoaded = false
+    let minFaceSize = 150
+    let maxDistance = 0.6
+    let minConfidence = 0.9
+
+    async function onPlay(videoEl) {
+        if(videoEl.paused || videoEl.ended || !modelLoaded)
+            return false
+
+        const { width, height } = faceapi.getMediaDimensions(videoEl)
+        const canvas = $('#overlay').get(0)
+        canvas.width = width
+        canvas.height = height
+
+        const mtcnnParams = {
+            minFaceSize
+        }
+
+        const fullFaceDescriptions = (await faceapi.allFacesMtcnn(videoEl, mtcnnParams))
+                .map(fd => fd.forSize(width, height))
 
 
-    $(document).ready(function() {
-        run()
-    });
+        fullFaceDescriptions.forEach(({ detection, landmarks, descriptor }) => {
+            faceapi.drawDetection('overlay', [detection], { withScore: false })
+            faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
+            const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
+            const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMANNN'} (${bestMatch.distance})`
+            const { x, y, height: boxHeight } = detection.getBox()
+            faceapi.drawText(
+                    canvas.getContext('2d'),
+                    x,
+                    y + boxHeight,
+                    text,
+                    Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
+            )
+        })
 
-    //everthing has to be ran in this function in order for camera to work
+        setTimeout(() => onPlay(videoEl))
+    }
+
     async function run() {
-        // load the models
-        await faceapi.loadMtcnnModel(MODEL_URL);
-        await faceapi.loadFaceRecognitionModel(MODEL_URL);
+        await faceapi.loadMtcnnModel(MODEL_URL)
+        await faceapi.loadFaceRecognitionModel(MODEL_URL)
+
+        // init reference data, e.g. compute a face descriptor for each class
+        trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet)
+
+        modelLoaded = true
 
         // try to access users webcam and stream the images
         // to the video element
-        const videoEl = document.getElementById('inputVideo');
+        const videoEl = $('#inputVideo').get(0)
         navigator.getUserMedia(
                 { video: {} },
                 stream => videoEl.srcObject = stream,
                 err => console.error(err)
-        );
-        const mtcnnForwardParams = {
-            // number of scaled versions of the input image passed through the CNN
-            // of the first stage, lower numbers will result in lower inference time,
-            // but will also be less accurate
-            maxNumScales: 10,
-            // scale factor used to calculate the scale steps of the image
-            // pyramid used in stage 1
-            scaleFactor: 0.709,
-            // the score threshold values used to filter the bounding
-            // boxes of stage 1, 2 and 3
-            scoreThresholds: [0.6, 0.7, 0.7],
-            // mininum face size to expect, the higher the faster processing will be,
-            // bu
+        )
+
+
+    }
+
+    $(document).ready(function() {
+
+        run()
+    })
+</script>
+            <!--<iframe id="localVideo" width="650" height="490" ></iframe>
+                <video id="localVideo" width="1280" height="720" autoplay></video>
+            -->
+
+
+
+
+<!-- Comment in this bracket
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="webRTC/js/common.js"></script>
+<script src="webRTC/js/videopipe.js"></script>
+<script src="webRTC/main.js"></script>
+<script src="webRTC/js/lib/ga.js"></script> //gg analytic<script>
+
+<script src="../camTracking/build/tracking-min.js"></script>
+<script src="../camTracking/build/data/face-min.js"></script>
+<script src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+<script src="../camTracking/assets/stats.min.js"></script>
+</script>
+-->
