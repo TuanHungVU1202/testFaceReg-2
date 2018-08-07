@@ -1,5 +1,5 @@
-./data
-./appdata
-./idea
-./Backup-images
-./public/images
+/data
+/appdata
+/.idea
+/Backup-images
+/public/images

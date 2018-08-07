@@ -82,11 +82,11 @@
                 .map(fd => fd.forSize(width, height))
 
 
-        fullFaceDescriptions.forEach(({ detection, landmarks, descriptor }) => {
+        fullFaceDescriptions.forEach(({ detection, descriptor }) => {
             faceapi.drawDetection('overlay', [detection], { withScore: false })
-            faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
+            //faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
             const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-            const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMANNN'} (${bestMatch.distance})`
+            const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMAN'} (${bestMatch.distance})`
             const { x, y, height: boxHeight } = detection.getBox()
             faceapi.drawText(
                     canvas.getContext('2d'),
