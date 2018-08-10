@@ -51,7 +51,7 @@
 
             <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
             <canvas id="overlay"></canvas>
-        </div>
+
 
     </div>
 </div>
@@ -61,8 +61,8 @@
     const MODEL_URL = '/weights';
 
     let modelLoaded = false
-    let minFaceSize = 150
-    let maxDistance = 0.6
+    let minFaceSize = 200                                              //keep a safe distance from face to webcam. If not, overflow bug would appear sooner
+    let maxDistance = 0.7
     let minConfidence = 0.9
 
     async function onPlay(videoEl) {
@@ -95,9 +95,12 @@
                     text,
                     Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
             )
+            //if (bestMatch.distance < maxDistance){
+
+            //}
         })
 
-        setTimeout(() => onPlay(videoEl))
+        setTimeout(() => onPlay(videoEl), 100)
     }
 
     async function run() {

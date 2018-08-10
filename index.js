@@ -5,8 +5,6 @@ var exphbs  = require('express-handlebars');
 var fetch = require('node-fetch');
 var bodyParser = require('body-parser');
 
-const {get} = require('request');
-
 //var mongoConfig = require ('./mongoConfig');
 
 var port = process.env.PORT || 2111;
@@ -16,6 +14,7 @@ app.listen(port, function() {
 
 //mongodb on mlab
 var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
+//var mongourl= 'localhost:27017/myDatabase';
 //declare for mongodb
 var MongoClient = require('mongodb').MongoClient;
 
@@ -33,13 +32,14 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+/*
 const viewsDir = path.join(__dirname, 'views');
 app.use(express.static(viewsDir));
 app.use(express.static(path.join(__dirname, './public')));
 app.use(express.static(path.join(__dirname, './weights')));
 app.use(express.static(path.join(__dirname, './dist')));
 app.use(express.static(path.join(__dirname, './node_modules/axios/dist')));
-
+*/
 //Init variables for data from Sensor
 var temperature = 21;
 var humid = 11;
@@ -525,46 +525,10 @@ app.get('/filterPower', function (req, res) {
 //CAMERA
 app.get('/camera', function (req, res) {
     if(loginFlag === true){
-        app.post('/fetch_external_image', async (req, res) => {
-            const { imageUrl } = req.body
-            if (!imageUrl) {
-                return res.status(400).send('imageUrl param required')
-            }
-            try {
-                const externalResponse = await request(imageUrl)
-                res.set('content-type', externalResponse.headers['content-type'])
-                return res.status(202).send(Buffer.from(externalResponse.body))
-            } catch (err) {
-                return res.status(404).send(err.toString())
-            }
-        })
-
-        function request(url, returnBuffer = true, timeout = 10000) {
-            return new Promise(function(resolve, reject) {
-                const options = Object.assign(
-                    {},
-                    {
-                        url,
-                        isBuffer: true,
-                        timeout,
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
-                        }
-                    },
-                    returnBuffer ? { encoding: null } : {}
-                )
-
-                get(options, function(err, res) {
-                    if (err) return reject(err)
-                    return resolve(res)
-                })
-            })
-        }
         res.render('camera');
     }
     else
         res.redirect('/');
-
 });
 
 
