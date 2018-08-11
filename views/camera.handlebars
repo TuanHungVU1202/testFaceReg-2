@@ -74,32 +74,36 @@
         canvas.width = width
         canvas.height = height
 
-        const mtcnnParams = {
-            minFaceSize
-        }
+        // fix overflow bug temporary by using "try...catch" block
+try {
+    const mtcnnParams = {
+        minFaceSize
+    }
 
-        const fullFaceDescriptions = (await faceapi.allFacesMtcnn(videoEl, mtcnnParams))
-                .map(fd => fd.forSize(width, height))
+    const fullFaceDescriptions = (await faceapi.allFacesMtcnn(videoEl, mtcnnParams))
+            .map(fd => fd.forSize(width, height))
 
 
-        fullFaceDescriptions.forEach(({ detection, descriptor }) => {
-            faceapi.drawDetection('overlay', [detection], { withScore: false })
-            //faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
-            const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-            const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMAN'} (${bestMatch.distance})`
-            const { x, y, height: boxHeight } = detection.getBox()
-            faceapi.drawText(
-                    canvas.getContext('2d'),
-                    x,
-                    y + boxHeight,
-                    text,
-                    Object.assign(faceapi.getDefaultDrawOptions(), { color: 'red', fontSize: 16 })
-            )
-            //if (bestMatch.distance < maxDistance){
+    fullFaceDescriptions.forEach(({detection, descriptor}) => {
+        faceapi.drawDetection('overlay', [detection], {withScore: false})
+        //faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
+        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
+        const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMAN'} (${bestMatch.distance})`
+        const {x, y, height: boxHeight} = detection.getBox()
+        faceapi.drawText(
+                canvas.getContext('2d'),
+                x,
+                y + boxHeight,
+                text,
+                Object.assign(faceapi.getDefaultDrawOptions(), {color: 'red', fontSize: 16})
+        )
+        //if (bestMatch.distance < maxDistance){
 
-            //}
-        })
-
+        //}
+    })
+} catch (e) {
+    console.log(e)
+}
         setTimeout(() => onPlay(videoEl), 100)
     }
 
