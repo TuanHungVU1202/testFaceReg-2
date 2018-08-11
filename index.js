@@ -522,10 +522,19 @@ app.get('/filterPower', function (req, res) {
 });
 
 
-//CAMERA
+//Outdoor CAMERA
 app.get('/camera', function (req, res) {
     if(loginFlag === true){
         res.render('camera');
+    }
+    else
+        res.redirect('/');
+});
+
+//Indoor CAMERA
+app.get('/motion', function (req, res) {
+    if(loginFlag === true){
+        res.render('motion');
     }
     else
         res.redirect('/');

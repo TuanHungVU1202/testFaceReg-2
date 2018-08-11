@@ -16,17 +16,16 @@
                 <a href="chart"><i class="fa fa-bar-chart-o"></i> Charts</a>
             </li>
             <li>
-                <a class="active-menu"><i class="fa fa-camera"></i> Camera</a>
+                <a class="active-menu"><i class="fa fa-camera"></i> Outdoor Camera</a>
             </li>
-
             <li>
-                <a href="gps"><i class="fa fa-table"></i> Members Tracker</a>
+                <a href="motion"><i class="fa fa-video-camera"></i> Indoor Camera</a>
             </li>
             <li>
                 <a href="chat"><i class="fa fa-edit"></i> Chat </a>
             </li>
             <li>
-                <a href="form.html"><i class="fa fa-fw fa-file"></i> Empty Page</a>
+                <a href="gps"><i class="fa fa-map-marker"></i> Member Tracker</a>
             </li>
         </ul>
     </div>
@@ -35,7 +34,7 @@
 <!-- put this before page inner (body) to load every scripts before body -->
 
 <script src="dist/face-api.js"></script>
-<script src="commons.js"></script>
+<script src="commonsForFaceApi.js"></script>
 
 <!-- /. PAGE WRAPPER  -->
 <div id="page-wrapper" >
@@ -46,7 +45,7 @@
             }
 
         </style>
-        <h2> SECURITY CAMERA</h2>
+        <h2> OUTDOOR SECURITY CAMERA</h2>
         <br>
 
             <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
@@ -61,8 +60,8 @@
     const MODEL_URL = '/weights';
 
     let modelLoaded = false
-    let minFaceSize = 200                                              //keep a safe distance from face to webcam. If not, overflow bug would appear sooner
-    let maxDistance = 0.7
+    let minFaceSize = 150                                              //keep a safe distance from face to webcam. If not, overflow bug would appear sooner
+    let maxDistance = 0.65
     let minConfidence = 0.9
 
     async function onPlay(videoEl) {
