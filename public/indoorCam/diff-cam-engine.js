@@ -25,6 +25,7 @@ var DiffCamEngine = (function() {
 	var includeMotionBox;		// flag to calculate and draw motion bounding box
 	var includeMotionPixels;	// flag to create object denoting pixels with motion
 
+
 	function init(options) {
 		// sanity check
 		if (!options) {

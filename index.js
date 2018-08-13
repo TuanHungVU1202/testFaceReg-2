@@ -313,7 +313,7 @@ app.get('/control', function (req, res) {
                 checkChangedFlag.changedFlagStatus = "true";
                 //res.redirect('/control');
             });
-
+        });
 
             res.render('control', {
                 device1state: (deviceState.device1 === "on") ? 'ON' : 'OFF',
@@ -326,7 +326,7 @@ app.get('/control', function (req, res) {
                 device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
                 device4ButtonColor: (deviceState.device4 === "on") ? "blue" : "red",
             });
-        });
+
     }
     else
         res.redirect('/');
@@ -525,7 +525,47 @@ app.get('/filterPower', function (req, res) {
 //Outdoor CAMERA
 app.get('/camera', function (req, res) {
     if(loginFlag === true){
-        res.render('camera');
+        MongoClient.connect(mongourl, function (err, db) {
+            //config devices for floor1
+            var floor1 = db.collection('floor1');
+
+            //Check current device state from MongoDB to keep the website up to date
+            //setInterval to run the inside function repeatedly with Interval = 10ms to keep website up-to-date as fast as possible
+            setInterval(function () {
+                var cursor3 = floor1.find(
+                    {_id: {$eq:"F1.3"}}
+                );
+                cursor3.forEach(
+                    function (doc) {
+                        deviceState.device3 = doc.state;
+                    }
+                );
+            },10);       //10 ms
+
+            // Post state of devices to control them
+            app.post('/device3', function (req, res) {
+                deviceState.device1 = (deviceState.device1 === "on") ? "off" : "on";
+
+                if (deviceState.device1 === "on") {
+                    floor1.updateMany(
+                        {"_id": "F1.3", state: "off"},
+                        {$set: {state: "on"}}               //without $set mongoDB won't update state field
+                    )
+                }
+                else {
+                    floor1.updateMany(
+                        {"_id": "F1.3", state: "on"},
+                        {$set: {state: "off"}},
+                    )
+                }
+                checkChangedFlag.changedFlagStatus = "true";
+            });
+        });
+
+        res.render('camera', {
+            device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
+            device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
+        });
     }
     else
         res.redirect('/');
@@ -533,8 +573,16 @@ app.get('/camera', function (req, res) {
 
 //Indoor CAMERA
 app.get('/motion', function (req, res) {
+    securityStatus = "ARMED";
     if(loginFlag === true){
-        res.render('motion');
+
+        res.render('motion',{
+            humanDetection: humanDetection,
+            securityStatus: securityStatus,
+
+            letterInsideSecurityBox: (securityStatus === "ARMED") ? "blue": "red",
+            letterInsideHumandetectionBox: (humanDetection === "YES") ? "red": "blue",
+        });
     }
     else
         res.redirect('/');
@@ -642,7 +690,7 @@ app.get('/readStateFromSystem', function (req, res) {
         deviceState.device3 = req.query.device3;
         floor1.updateMany(
             {"_id": "F1.3"},
-            {$set: {"_id": "F1.3", name: "Air Cooler", state: req.query.device3}},
+            {$set: {"_id": "F1.3", name: "AMain Door", state: req.query.device3}},
             {upsert: true}
             );
     }
@@ -684,10 +732,12 @@ app.get('/readHumidFromSystem', function (req, res) {
 app.get('/readGasFromSystem', function (req, res) {
     gasDetection = req.query.gasDetection;
 });
+
+/*
 app.get('/readHumanFromSystem', function (req, res) {
     humanDetection = req.query.humanDetection;
 });
-
+*/
 // Read Power value from System by NodeMCU through Internet, then Log data into MongoDB
 app.get('/readPowerFromSystem', function (req, res) {
     var d = new Date();

@@ -37,7 +37,7 @@ async function requestExternalImage(imageUrl) {
 }
 
 // fetch first image of each class and compute their descriptors
-async function initTrainDescriptorsByClass(net, numImagesForTraining = 1) {
+async function initTrainDescriptorsByClass(net, numImagesForTraining = 5) {
   const maxAvailableImagesPerClass = 5
   numImagesForTraining = Math.min(numImagesForTraining, maxAvailableImagesPerClass)
   return Promise.all(classes.map(

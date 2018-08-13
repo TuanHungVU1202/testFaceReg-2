@@ -1,6 +1,6 @@
 .wrapper {
 	display: inline-block;
-	position: relative;
+	position: absolute;
 	width: 640px;
 	height: 480px;
 	background-color: #000;
@@ -10,11 +10,6 @@ img {
 	position: absolute;
 	right: 10px;
 	top: -160px;
-}
-
-.knocked-over {
-	transform: rotate(450deg);
-	transition: transform 1s;
 }
 
 video {

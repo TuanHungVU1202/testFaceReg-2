@@ -190,7 +190,7 @@
             <div class="panel-body easypiechart-panel">
                  <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
                 <form action = "/device3", method = "post", target = "hiddenFrame">
-                    <h4> F1.Air Cooler </h4>
+                    <h4> Main Door </h4>
                     <div class="box">
                         <button type="submit" class="letterInsideButtonState3" id = "device3">{{device3state}}</button>
                     </div>
@@ -293,11 +293,11 @@
                     $("#device2").css("color","red");
                 }
                 if(result.device3 === "on"){ 
-                    $("#device3").text("ON");
+                    $("#device3").text("OPEN");
                     $("#device3").css("color","blue");
                 }
                 if(result.device3 === "off"){ 
-                    $("#device3").text("OFF");
+                    $("#device3").text("CLOSED");
                     $("#device3").css("color","red");
                 }
                 if(result.device4 === "on"){ 

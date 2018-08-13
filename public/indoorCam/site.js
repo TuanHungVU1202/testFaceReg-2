@@ -1,9 +1,10 @@
 var $motionBox = $('.motion-box');
-
+var $humanDetection = $('letterInsideHumandetectionBox')
 var scale = 10;	// capture resolution over motion resolution
 var isActivated = false;
 var isTargetInSight = false;
 var lostTimeout;
+
 
 function initSuccess() {
 	DiffCamEngine.start();
@@ -29,6 +30,7 @@ function capture(payload) {
 
     var box = payload.motionBox;
     if (box) {
+        $humanDetection = "YES";
         // video is flipped, so we're positioning from right instead of left
         var right = box.x.min * scale + 1;
         var top = box.y.min * scale + 1;
@@ -40,7 +42,7 @@ function capture(payload) {
             right: right,
             top: top,
             width: width,
-            height: height
+            height: height,
         });
 
         if (!isTargetInSight) {
@@ -48,11 +50,11 @@ function capture(payload) {
             play('i-see-you');
         }
         else {
-            play('fire');
+            play('fire');           //audio-fire <- id
         }
 
         clearTimeout(lostTimeout);
-        lostTimeout = setTimeout(declareLost, 2000);
+        lostTimeout = setTimeout(declareLost, 5000);
     }
 
     /*

@@ -16,7 +16,7 @@
     "dat.gui": "^0.7.2",
     "express": "^4.16.3",
     "express-handlebars": "^3.0.0",
-    "face-api.js": "^0.10.0",
+    "face-api.js": "^0.10.1",
     "face-recognition": "^0.9.3",
     "mocha": "^5.2.0",
     "mongodb": "^2.2.33",

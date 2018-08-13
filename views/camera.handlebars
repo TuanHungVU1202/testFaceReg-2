@@ -43,10 +43,38 @@
             video, canvas {
                 position: absolute;
             }
-
+            div.box{
+                position: relative;
+                text-align: center;
+                width: 100px;
+                height: 60px;
+                margin: 20px auto 10px auto;
+            }
+            div.box .letterInsideButtonState3 {
+                display: block;
+                position: absolute;
+                font-size: 26px;
+                top: 18px;
+                width: 100px;
+                color: {{device3ButtonColor}};
+                border: none;
+                background-color: white;
+            }
         </style>
         <h2> OUTDOOR SECURITY CAMERA</h2>
         <br>
+        <div class="col-xs-6 col-md-2">
+            <div class="panel panel-default">
+                <div class="panel-body easypiechart-panel">
+                    <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+                    <form action = "/device3", method = "post", target = "hiddenFrame">
+                        <h4> Main Door </h4>
+                        <div class="box">
+                            <button type="submit" class="letterInsideButtonState3" id = "device3">{{device3state}}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
             <canvas id="overlay"></canvas>
@@ -61,7 +89,7 @@
 
     let modelLoaded = false
     let minFaceSize = 150                                              //keep a safe distance from face to webcam. If not, overflow bug would appear sooner
-    let maxDistance = 0.65
+    let maxDistance = 0.51
     let minConfidence = 0.9
 
     async function onPlay(videoEl) {
@@ -126,10 +154,32 @@ try {
     }
 
     $(document).ready(function() {
-
         run()
+        updateData()
     })
 </script>
+
+    <script>
+        function updateData(){
+            $.ajax({
+                url: "./state",
+                dataType: 'JSON',
+                success: function(result){
+                    if(result.device3 === "on"){
+                        $("#device3").text("OPEN");
+                        $("#device3").css("color","blue");
+                    }
+                    if(result.device3 === "off"){
+                        $("#device3").text("CLOSED");
+                        $("#device3").css("color","red");
+                    }
+                    setTimeout(function(){
+                        updateData()
+                    }, 2000);
+                }
+            });
+        }
+    </script>
             <!--<iframe id="localVideo" width="650" height="490" ></iframe>
                 <video id="localVideo" width="1280" height="720" autoplay></video>
             -->
