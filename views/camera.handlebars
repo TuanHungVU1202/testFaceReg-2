@@ -109,65 +109,93 @@
     const fullFaceDescriptions = (await faceapi.allFacesMtcnn(videoEl, mtcnnParams))
             .map(fd => fd.forSize(width, height))
 
+        //temporary fix bug read distance property of undefined
+        try {
 
-    fullFaceDescriptions.forEach(({detection, descriptor}) => {
-        faceapi.drawDetection('overlay', [detection], {withScore: false})
-        //faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
-        const bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-        const text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMAN'} (${bestMatch.distance})`
-        const {x, y, height: boxHeight} = detection.getBox()
-        faceapi.drawText(
-                canvas.getContext('2d'),
-                x,
-                y + boxHeight,
-                text,
-                Object.assign(faceapi.getDefaultDrawOptions(), {color: 'red', fontSize: 16})
-        )
-        /*
-        if (bestMatch.distance >= maxDistance) {
-            $.ajax({
-                url: "./device3",
-                type: 'POST',
-                //data: JSON.stringify(deviceState),
-                dataType: 'JSON',
-                success: function (result) {
-                    result.device3 = "off";
-                    $("#device3").text("CLOSED");
-                    $("#device3").css("color", "red");
+            //declare const bestMatch first for global use
+            var bestMatch, text;
+
+            function detectFace() {
+                fullFaceDescriptions.forEach(({detection, descriptor}) => {
+                    faceapi.drawDetection('overlay', [detection], {withScore: false})
+                    //faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
+                    bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
+                    text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMAN'} (${bestMatch.distance})`
+                    const {x, y, height: boxHeight} = detection.getBox()
+                    faceapi.drawText(
+                            canvas.getContext('2d'),
+                            x,
+                            y + boxHeight,
+                            text,
+                            Object.assign(faceapi.getDefaultDrawOptions(), {color: 'red', fontSize: 16})
+                    )
+                })                                                              //fullFaceDescriptions.forEach brackets
+            }
+
+            //start function opendoor
+            function doorSwitcher() {
+                detectFace()
+                if (bestMatch.distance < maxDistance) {
+                    $.ajax({
+                        url: "./device3",
+                        type: "POST",
+                        dataType: 'JSON',
+                        success: function (result) {
+                            result.device3 = "on"
+                        }
+                    })
                 }
-            })
-        }
-*/
-        /*
-setInterval(function () {
-        if ( ) {
-            $.ajax({
-                url: "./state",
-                dataType: 'JSON',
-                success: function () {
-                    deviceState.device3 = "on"
-                    $("#device3").text("OPEN");
-                    $("#device3").css("color", "blue");
-                }
-            })
-            //delay(3000)
-        }
-        else {
-            $.ajax({
-                url: "./state",
-                dataType: 'JSON',
-                success: function () {
-                    deviceState.device3 = "off"
-                    $("#device3").text("CLOSED");
-                    $("#device3").css("color", "red");
-                }
-            })
-        }
-        //delay(5000)
-    }, 10000)
+            }
+
+            /*
+            if (bestMatch.distance >= maxDistance) {
+                $.ajax({
+                    url: "./device3",
+                    type: 'POST',
+                    //data: JSON.stringify(deviceState),
+                    dataType: 'JSON',
+                    success: function (result) {
+                        result.device3 = "off";
+                        $("#device3").text("CLOSED");
+                        $("#device3").css("color", "red");
+                    }
+                })
+            }
     */
+            /*
+    setInterval(function () {
+            if ( ) {
+                $.ajax({
+                    url: "./state",
+                    dataType: 'JSON',
+                    success: function () {
+                        deviceState.device3 = "on"
+                        $("#device3").text("OPEN");
+                        $("#device3").css("color", "blue");
+                    }
+                })
+                //delay(3000)
+            }
+            else {
+                $.ajax({
+                    url: "./state",
+                    dataType: 'JSON',
+                    success: function () {
+                        deviceState.device3 = "off"
+                        $("#device3").text("CLOSED");
+                        $("#device3").css("color", "red");
+                    }
+                })
+            }
+            //delay(5000)
+        }, 10000)
+        */
 
-            })
+            doorSwitcher()
+        }
+        catch (e) {
+            console.log(e);
+        }
         setTimeout(() => onPlay(videoEl))
     }
 
