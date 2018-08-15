@@ -279,6 +279,8 @@ app.get('/control', function (req, res) {
                 checkChangedFlag.changedFlagStatus = "true";
                 //res.redirect('/control');
             });
+
+            /* In
             app.post('/device3', function (req, res) {
                 deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
                 if (deviceState.device3 === "on") {
@@ -296,6 +298,8 @@ app.get('/control', function (req, res) {
                 checkChangedFlag.changedFlagStatus = "true";
                 //res.redirect('/control');
             });
+            */
+
             app.post('/device4', function (req, res) {
                 deviceState.device4 = (deviceState.device4 === "on") ? "off" : "on";
                 if (deviceState.device4 === "on") {
@@ -318,7 +322,7 @@ app.get('/control', function (req, res) {
             res.render('control', {
                 device1state: (deviceState.device1 === "on") ? 'ON' : 'OFF',
                 device2state: (deviceState.device2 === "on") ? 'ON' : 'OFF',
-                device3state: (deviceState.device3 === "on") ? 'ON' : 'OFF',
+                device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
                 device4state: (deviceState.device4 === "on") ? 'ON' : 'OFF',
 
                 device1ButtonColor: (deviceState.device1 === "on") ? "blue" : "red",
@@ -540,13 +544,13 @@ app.get('/camera', function (req, res) {
                         deviceState.device3 = doc.state;
                     }
                 );
-            },10);       //10 ms
+            },0);       //10000 ms
 
             // Post state of devices to control them
             app.post('/device3', function (req, res) {
-                deviceState.device1 = (deviceState.device1 === "on") ? "off" : "on";
+                deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
 
-                if (deviceState.device1 === "on") {
+                if (deviceState.device3 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.3", state: "off"},
                         {$set: {state: "on"}}               //without $set mongoDB won't update state field
@@ -690,7 +694,7 @@ app.get('/readStateFromSystem', function (req, res) {
         deviceState.device3 = req.query.device3;
         floor1.updateMany(
             {"_id": "F1.3"},
-            {$set: {"_id": "F1.3", name: "AMain Door", state: req.query.device3}},
+            {$set: {"_id": "F1.3", name: "Main Door", state: req.query.device3}},
             {upsert: true}
             );
     }

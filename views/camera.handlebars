@@ -101,8 +101,7 @@
         canvas.width = width
         canvas.height = height
 
-        // fix overflow bug temporary by using "try...catch" block
-try {
+
     const mtcnnParams = {
         minFaceSize
     }
@@ -124,14 +123,52 @@ try {
                 text,
                 Object.assign(faceapi.getDefaultDrawOptions(), {color: 'red', fontSize: 16})
         )
-        //if (bestMatch.distance < maxDistance){
+        /*
+        if (bestMatch.distance >= maxDistance) {
+            $.ajax({
+                url: "./device3",
+                type: 'POST',
+                //data: JSON.stringify(deviceState),
+                dataType: 'JSON',
+                success: function (result) {
+                    result.device3 = "off";
+                    $("#device3").text("CLOSED");
+                    $("#device3").css("color", "red");
+                }
+            })
+        }
+*/
+        /*
+setInterval(function () {
+        if ( ) {
+            $.ajax({
+                url: "./state",
+                dataType: 'JSON',
+                success: function () {
+                    deviceState.device3 = "on"
+                    $("#device3").text("OPEN");
+                    $("#device3").css("color", "blue");
+                }
+            })
+            //delay(3000)
+        }
+        else {
+            $.ajax({
+                url: "./state",
+                dataType: 'JSON',
+                success: function () {
+                    deviceState.device3 = "off"
+                    $("#device3").text("CLOSED");
+                    $("#device3").css("color", "red");
+                }
+            })
+        }
+        //delay(5000)
+    }, 10000)
+    */
 
-        //}
-    })
-} catch (e) {
-    console.log(e)
-}
-        setTimeout(() => onPlay(videoEl), 100)
+            })
+        setTimeout(() => onPlay(videoEl))
     }
 
     async function run() {
@@ -152,34 +189,34 @@ try {
                 err => console.error(err)
         )
     }
-
+/*
+    function updateData(){
+        $.ajax({
+            url: "./state",
+            dataType: 'JSON',
+            success: function(result){
+                if(result.device3 === "on"){
+                    $("#device3").text("OPEN");
+                    $("#device3").css("color","blue");
+                }
+                if(result.device3 === "off"){
+                    $("#device3").text("CLOSED");
+                    $("#device3").css("color","red");
+                }
+                setTimeout(function(){
+                    //updateData()
+                }, 2000);
+            }
+        });
+    }
+*/
     $(document).ready(function() {
         run()
-        updateData()
+        //updateData()
     })
 </script>
 
-    <script>
-        function updateData(){
-            $.ajax({
-                url: "./state",
-                dataType: 'JSON',
-                success: function(result){
-                    if(result.device3 === "on"){
-                        $("#device3").text("OPEN");
-                        $("#device3").css("color","blue");
-                    }
-                    if(result.device3 === "off"){
-                        $("#device3").text("CLOSED");
-                        $("#device3").css("color","red");
-                    }
-                    setTimeout(function(){
-                        updateData()
-                    }, 2000);
-                }
-            });
-        }
-    </script>
+
             <!--<iframe id="localVideo" width="650" height="490" ></iframe>
                 <video id="localVideo" width="1280" height="720" autoplay></video>
             -->
