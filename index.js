@@ -13,8 +13,8 @@ app.listen(port, function() {
 });
 
 //mongodb on mlab
-var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
-//var mongourl= 'localhost:27017/myDatabase';
+//var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
+var mongourl= 'mongodb://localhost:27017/myDatabase';
 //declare for mongodb
 var MongoClient = require('mongodb').MongoClient;
 
@@ -555,13 +555,13 @@ app.get('/camera', function (req, res) {
                         {"_id": "F1.3", state: "off"},
                         {$set: {state: "on"}}               //without $set mongoDB won't update state field
                     )
-                }
+                }/*
                 else {
                     floor1.updateMany(
                         {"_id": "F1.3", state: "on"},
                         {$set: {state: "off"}},
                     )
-                }
+                }*/
                 checkChangedFlag.changedFlagStatus = "true";
             });
         });
