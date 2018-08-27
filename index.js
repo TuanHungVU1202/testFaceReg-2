@@ -1,8 +1,8 @@
 var express = require('express');		//add comment de test github update
 var app = express();
-var pug = require('pug');
+//var pug = require('pug');
 var exphbs  = require('express-handlebars');
-var fetch = require('node-fetch');
+//var fetch = require('node-fetch');
 var bodyParser = require('body-parser');
 
 //var mongoConfig = require ('./mongoConfig');
@@ -249,13 +249,13 @@ app.get('/control', function (req, res) {
 
                 if (deviceState.device1 === "on") {
                     floor1.updateMany(
-                        {"_id": "F1.1", state: "off"},
+                        {"_id": "F1.1"},
                         {$set: {state: "on"}}               //without $set mongoDB won't update state field
                     )
                 }
                 else {
                     floor1.updateMany(
-                        {"_id": "F1.1", state: "on"},
+                        {"_id": "F1.1"},
                         {$set: {state: "off"}},
                     )
                 }
@@ -266,13 +266,13 @@ app.get('/control', function (req, res) {
                 deviceState.device2 = (deviceState.device2 === "on") ? "off" : "on";
                 if (deviceState.device2 === "on") {
                     floor1.updateMany(
-                        {"_id": "F1.2", state: "off"},
+                        {"_id": "F1.2"},
                         {$set: {state: "on"}}
                     )
                 }
                 else {
                     floor1.updateMany(
-                        {"_id": "F1.2", state: "on"},
+                        {"_id": "F1.2"},
                         {$set: {state: "off"}},
                     )
                 }
@@ -304,13 +304,13 @@ app.get('/control', function (req, res) {
                 deviceState.device4 = (deviceState.device4 === "on") ? "off" : "on";
                 if (deviceState.device4 === "on") {
                     floor1.updateMany(
-                        {"_id": "F1.4", state: "off"},
+                        {"_id": "F1.4"},
                         {$set: {state: "on"}}
                     )
                 }
                 else {
                     floor1.updateMany(
-                        {"_id": "F1.4", state: "on"},
+                        {"_id": "F1.4"},
                         {$set: {state: "off"}},
                     )
                 }
@@ -547,21 +547,21 @@ app.get('/camera', function (req, res) {
             },0);       //10000 ms
 
             // Post state of devices to control them
-            app.post('/device3', function (req, res) {
+            app.post('/device3', function () {
                 deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
-
                 if (deviceState.device3 === "on") {
                     floor1.updateMany(
-                        {"_id": "F1.3", state: "off"},
+                        {"_id": "F1.3"},
                         {$set: {state: "on"}}               //without $set mongoDB won't update state field
                     )
-                }/*
+                    //checkChangedFlag.changedFlagStatus = "true";
+                }
                 else {
                     floor1.updateMany(
-                        {"_id": "F1.3", state: "on"},
+                        {"_id": "F1.3"},
                         {$set: {state: "off"}},
                     )
-                }*/
+                }
                 checkChangedFlag.changedFlagStatus = "true";
             });
         });

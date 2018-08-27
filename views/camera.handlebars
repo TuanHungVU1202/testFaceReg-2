@@ -63,14 +63,13 @@
         </style>
         <h2> OUTDOOR SECURITY CAMERA</h2>
         <br>
+        <button id="recogBtn">Start Face Recognition</button>
         <div class="col-xs-6 col-md-2">
             <div class="panel panel-default">
                 <div class="panel-body easypiechart-panel">
-                    <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
-                    <form action = "/device3", method = "post", target = "hiddenFrame">
                         <h4> Main Door </h4>
                         <div class="box">
-                            <button type="submit" class="letterInsideButtonState3" id = "device3">{{device3state}}</button>
+                            <div class="letterInsideButtonState3" id = "device3">{{device3state}}</div>
                         </div>
                     </form>
                 </div>
@@ -78,8 +77,6 @@
 
             <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
             <canvas id="overlay"></canvas>
-
-
     </div>
 </div>
 
@@ -94,12 +91,13 @@
 
     globals = {};
     function globalVar(){
-        globals['conditionChecked'] = false;
+        globals['isKnown'] = false;
+        globals['isUnknown'] = false;
     }
 
 
     async function onPlay(videoEl) {
-        if (videoEl.paused || videoEl.ended || !modelLoaded)
+        if (videoEl.paused || videoEl.ended || !modelLoaded || globals.isKnown === true || globals.isUnknown === true)
             return false
 
         const {width, height} = faceapi.getMediaDimensions(videoEl)
@@ -119,7 +117,7 @@
 
         //declare var bestMatch, text first for to use in another function
         var bestMatch, text;
-        var detected = [];
+        var detected = [], notDetected = [];
         var max = 5;
 
 
@@ -128,7 +126,7 @@
                 faceapi.drawDetection('overlay', [detection], {withScore: false})
                 //faceapi.drawLandmarks('overlay', landmarks.forSize(width, height), { lineWidth: 4, color: 'red' })
                 bestMatch = getBestMatch(trainDescriptorsByClass, descriptor)
-                text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'Just a HOOMAN'} (${bestMatch.distance})`
+                text = `${bestMatch.distance < maxDistance ? bestMatch.className : 'UNKNOWN'} (${bestMatch.distance})`
                 const {x, y, height: boxHeight} = detection.getBox()
                 faceapi.drawText(
                         canvas.getContext('2d'),
@@ -139,39 +137,46 @@
                 )
 
 
-                if (bestMatch.distance < maxDistance) {
+                if ((bestMatch.distance < maxDistance) && (globals.isKnown === false) && (globals.isUnknown === false)) {
                     for (let i= 0; i <max; i++) {
                         detected.push(bestMatch.className);
                         //console.log(detected);
                         //console.log(detected.length);
                     }
                     if (detected.length === 5){
-                        globals.conditionChecked = true;
-                        //console.log(globals.conditionChecked);
+                        openDoor()
+                        updateData()
+                        globals.isKnown = true;
+                        //console.log('DONE OWNER');
+                        //console.log(globals.isKnown);
+                    }
+                }
+                if ((bestMatch.distance >= maxDistance) && (globals.isUnknown === false) && (globals.isKnown === false)) {
+                    for (let i = 0; i <= max; i++) {
+                        notDetected.push('unknown');
+                        //console.log(notDetected);
+                        //console.log(notDetected.length);
+                    }
+                    if (notDetected.length === 6) {
+                        closeDoor()
+                        updateData()
+                        globals.isUnknown = true;
+                        //console.log('done');
+                        //console.log('notDetected ' + globals.isUnknown);
                     }
                 }
             });                                              //fullFaceDescriptions.forEach brackets
     }
 
-    function openDoor(){
-            if (globals.conditionChecked === true){
-                $.ajax({
-                    url: "/device3",
-                    method: 'POST',
-                    dataType: 'JSON',
-                    success: function (result) {
-                        result.device3state = "on";
-                        console.log('ok');
-                    }
-                })
-            }
-    }
 
-        setTimeout(() => onPlay(videoEl))
+
         globalVar()
         detectFace()
-        console.log('out cond ' + globals.conditionChecked);
-        openDoor()
+        console.log('out cond Known' + globals.isKnown);
+        console.log('out cond of Unknown ' + globals.isUnknown);
+        //if (globals.isKnown === true){openDoor(); updateData()}
+        //if (globals.isKnown === false){closeDoor(); updateData()}
+        setTimeout(() => onPlay(videoEl))
 
     }
 
@@ -186,7 +191,6 @@
         modelLoaded = true
 
         // try to access users webcam and stream the images
-        // to the video element
         const videoEl = $('#inputVideo').get(0)
         navigator.getUserMedia(
                 { video: {} },
@@ -199,6 +203,51 @@
     $(document).ready(function() {
         run()
     })
+
+    function updateData(){
+        $.ajax({
+            url: "./state",
+            dataType: 'JSON',
+            success: function(result){
+                if(result.device3 === "on"){
+                    $("#device3").text("OPEN");
+                    $("#device3").css("color","blue");
+                }
+                if(result.device3 === "off"){
+                    $("#device3").text("CLOSED");
+                    $("#device3").css("color","red");
+                }
+            }
+        });
+    }
+
+    function openDoor(){
+        $.ajax({
+            url: "/device3",
+            method: 'POST',
+            dataType: 'JSON',
+            success: handleOpen
+        })
+
+    }
+
+    function closeDoor(){
+        $.ajax({
+            url: "/device3",
+            method: 'POST',
+            dataType: 'JSON',
+            success: handleClose
+        })
+
+    }
+
+    function handleOpen(result){
+        result.device3 = "on";
+    }
+
+    function handleClose(result){
+        result.device3 = "off";
+    }
 </script>
 
 
