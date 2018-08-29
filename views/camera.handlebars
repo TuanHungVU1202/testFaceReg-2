@@ -144,9 +144,14 @@
                         //console.log(detected.length);
                     }
                     if (detected.length === 5){
+                        globals.isKnown = true;
                         openDoor()
                         updateData()
-                        globals.isKnown = true;
+                        setTimeout(function () {
+                            closeDoor()
+                            console.log('done close in OpenDoor');
+                            updateData()
+                        }, 5000)
                         //console.log('DONE OWNER');
                         //console.log(globals.isKnown);
                     }
@@ -158,9 +163,9 @@
                         //console.log(notDetected.length);
                     }
                     if (notDetected.length === 6) {
-                        closeDoor()
-                        updateData()
                         globals.isUnknown = true;
+                        //closeDoor()
+                        updateData()
                         //console.log('done');
                         //console.log('notDetected ' + globals.isUnknown);
                     }

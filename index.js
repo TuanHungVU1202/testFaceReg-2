@@ -548,7 +548,8 @@ app.get('/camera', function (req, res) {
 
             // Post state of devices to control them
             app.post('/device3', function () {
-                deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
+                deviceState.device3 = (deviceState.device3 === "off") ? "on" : "off";
+                console.log(deviceState.device3);
                 if (deviceState.device3 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.3"},
@@ -556,7 +557,8 @@ app.get('/camera', function (req, res) {
                     )
                     //checkChangedFlag.changedFlagStatus = "true";
                 }
-                else {
+                else
+                    if (deviceState.device3 === "off"){
                     floor1.updateMany(
                         {"_id": "F1.3"},
                         {$set: {state: "off"}},
