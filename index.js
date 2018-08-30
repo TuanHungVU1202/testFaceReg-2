@@ -548,7 +548,7 @@ app.get('/camera', function (req, res) {
 
             // Post state of devices to control them
             app.post('/device3', function () {
-                deviceState.device3 = (deviceState.device3 === "off") ? "on" : "off";
+                deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
                 console.log(deviceState.device3);
                 if (deviceState.device3 === "on") {
                     floor1.updateMany(

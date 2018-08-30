@@ -63,7 +63,7 @@
         </style>
         <h2> OUTDOOR SECURITY CAMERA</h2>
         <br>
-        <button id="recogBtn">Start Face Recognition</button>
+        <button onclick="run()" id="recogBtn">Start Face Recognition</button>
         <div class="col-xs-6 col-md-2">
             <div class="panel panel-default">
                 <div class="panel-body easypiechart-panel">
@@ -149,9 +149,9 @@
                         updateData()
                         setTimeout(function () {
                             closeDoor()
-                            console.log('done close in OpenDoor');
+                            //console.log('done close in OpenDoor');
                             updateData()
-                        }, 5000)
+                        }, 7000)
                         //console.log('DONE OWNER');
                         //console.log(globals.isKnown);
                     }
@@ -166,6 +166,12 @@
                         globals.isUnknown = true;
                         //closeDoor()
                         updateData()
+                        var registerCheck = confirm('You are not yet register to the system. Do you want to add your information to the Database?\n***If yes, click "OK"\n***Otherwise, click Cancel!');
+                        if (registerCheck == true){
+                            console.log('registered');
+                        } else {
+                            console.log('Not regist');
+                        }
                         //console.log('done');
                         //console.log('notDetected ' + globals.isUnknown);
                     }
@@ -177,10 +183,8 @@
 
         globalVar()
         detectFace()
-        console.log('out cond Known' + globals.isKnown);
-        console.log('out cond of Unknown ' + globals.isUnknown);
-        //if (globals.isKnown === true){openDoor(); updateData()}
-        //if (globals.isKnown === false){closeDoor(); updateData()}
+        //console.log('out cond Known' + globals.isKnown);
+        //console.log('out cond of Unknown ' + globals.isUnknown);
         setTimeout(() => onPlay(videoEl))
 
     }
@@ -206,7 +210,7 @@
 
 
     $(document).ready(function() {
-        run()
+        //run()
     })
 
     function updateData(){
