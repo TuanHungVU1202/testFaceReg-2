@@ -111,7 +111,7 @@
 
         //use 'imgStr' to post "string" data to nodejs
         $.post('./imageData',
-                {'imgStr': onlyData},
+                {'imgStr': onlyData, 'className': 'hung'},
                 function (result) {
             console.log('done', result);
         })

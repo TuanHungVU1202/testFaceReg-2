@@ -10,7 +10,9 @@ var app = express();
 var exphbs  = require('express-handlebars');
 assert = require('assert');
 var fs = require ('fs');
-var pathToRaw = 'imgProcess/raw';
+var pathToRaw = 'public/images/forProcess/raw/';
+var pathToFinal = 'public/images/forProcess/final/';
+
 
 //var multer = require('multer');
 //var upload = multer({dest: 'uploads/'})
@@ -148,10 +150,11 @@ app.get('/handleImage', function(req, res) {
         app.post('/imageData', function (req, res) {
             var imgStringData = req.body.imgStr;
             var buffer = new Buffer(imgStringData, 'base64');
-            fs.writeFileSync("out.png", buffer, 'base64', function(err) {
+            fs.writeFileSync(pathToRaw+"out.png", buffer, 'base64', function(err) {
                 console.log(err);
             });
-
+            var newPerson = req.body.className;
+            console.log(newPerson);
         })
         res.render('handleImage');
     }
