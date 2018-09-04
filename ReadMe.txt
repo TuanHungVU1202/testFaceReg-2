@@ -6,4 +6,4 @@ motion detection
 
 camera1 is from tracking.js
 
-# implemented face-api.js, overflow bug fixed temporary
+# implemented face-api.js, overflow bug fixed permanently
