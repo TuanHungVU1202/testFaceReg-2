@@ -1,12 +1,22 @@
+//check running time for the whole server
+const {performance} = require('perf_hooks');
+var t0 = performance.now();
+//var fetch = require('node-fetch');
+//var pug = require('pug');
+
+//program starts here
 var express = require('express');		//add comment de test github update
 var app = express();
-//var pug = require('pug');
 var exphbs  = require('express-handlebars');
-//var fetch = require('node-fetch');
-var bodyParser = require('body-parser');
+assert = require('assert');
+var fs = require ('fs');
+var pathToRaw = 'imgProcess/raw';
 
-//var mongoConfig = require ('./mongoConfig');
+//var multer = require('multer');
+//var upload = multer({dest: 'uploads/'})
 
+
+//config server on port 2111
 var port = process.env.PORT || 2111;
 app.listen(port, function() {
     console.log("App is running on port " + port);
@@ -15,31 +25,23 @@ app.listen(port, function() {
 //mongodb on mlab
 //var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
 var mongourl= 'mongodb://localhost:27017/myDatabase';
-//declare for mongodb
 var MongoClient = require('mongodb').MongoClient;
 
 //setup socket.io
 const client = require('socket.io').listen(1202).sockets;
 
-assert = require('assert');
-
 const path = require('path');
 app.set('view engine', 'handlebars');
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-app.use(bodyParser.json());
 
-/*
-const viewsDir = path.join(__dirname, 'views');
-app.use(express.static(viewsDir));
-app.use(express.static(path.join(__dirname, './public')));
-app.use(express.static(path.join(__dirname, './weights')));
-app.use(express.static(path.join(__dirname, './dist')));
-app.use(express.static(path.join(__dirname, './node_modules/axios/dist')));
-*/
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({
+    extended: true,
+    limit: '50mb'
+}));
+app.use(bodyParser.json({limit: '50mb'}));
+
 //Init variables for data from Sensor
 var temperature = 21;
 var humid = 11;
@@ -66,11 +68,12 @@ var chartPower = [];
 var chartCount = 0;
 //var chartTime2 = ["1:00","3:30","4:15","6:15","7:15","8:15"];
 
-//https://stackoverflow.com/questions/7357734/how-do-i-get-the-time-of-day-in-javascript-node-js
 //Login variables for webServer
 var username = "vthung";
 var password = "admin"; 
 var loginFlag = false;
+var masterPass = "lifeIn5Months";
+var loginCamFlag = false;
 
 var checkChangedFlag = {};
 checkChangedFlag.changedFlagStatus = "false";
@@ -111,19 +114,8 @@ app.get('/login', function (req, res) {
     res.render('login');
 });
 
-//LOGIN
-app.post('/logincheck', function(req,res){
-    if(req.body.username === username  && req.body.password === password){
-        console.log("OK");
-        loginFlag = true;
-        res.redirect('/home');
-    }
-    else {
-        console.log("Fail");
-        res.redirect('/');
-    }
-});
 
+//LOGIN NodeMCU
 app.get('/logincheckNodeMCU', function(req,res){
     if(req.query.username === username  && req.query.password === password){
         console.log("OK");
@@ -136,7 +128,51 @@ app.get('/logincheckNodeMCU', function(req,res){
     }
 });
 
-//HOME
+
+//LOGIN Security Camera
+app.post('/logincheckCamera', function(req,res){
+    if(req.body.masterPass === masterPass){
+        console.log("OK Cam");
+        loginCamFlag = true;
+        res.redirect('/handleImage');
+    }
+    else {
+        console.log("Fail");
+        res.redirect('/');
+    }
+});
+
+//then Get handleImage page
+app.get('/handleImage', function(req, res) {
+    if (loginCamFlag === true) {
+        app.post('/imageData', function (req, res) {
+            var imgStringData = req.body.imgStr;
+            var buffer = new Buffer(imgStringData, 'base64');
+            fs.writeFileSync("out.png", buffer, 'base64', function(err) {
+                console.log(err);
+            });
+
+        })
+        res.render('handleImage');
+    }
+})
+
+
+//LOGIN Page
+app.post('/logincheck', function(req,res){
+    if(req.body.username === username  && req.body.password === password){
+        console.log("OK");
+        loginFlag = true;
+        res.redirect('/home');
+    }
+    else {
+        console.log("Fail");
+        res.redirect('/');
+    }
+});
+
+
+//then get HOME page
 app.get('/home', function (req, res) {
     if(loginFlag === true){ 
         MongoClient.connect(mongourl, function(err, db){
@@ -528,7 +564,7 @@ app.get('/filterPower', function (req, res) {
 
 //Outdoor CAMERA
 app.get('/camera', function (req, res) {
-    if(loginFlag === true){
+    //if(loginFlag === true){
         MongoClient.connect(mongourl, function (err, db) {
             //config devices for floor1
             var floor1 = db.collection('floor1');
@@ -572,10 +608,28 @@ app.get('/camera', function (req, res) {
             device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
             device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
         });
-    }
-    else
-        res.redirect('/');
+    //}
+    //else
+    //    res.redirect('/');
 });
+
+/*
+//Page to add Photos to  process and train
+app.get('/handleImage', function (req, res) {
+    if (loginCamFlag === true){
+        MongoClient.connect(mongourl, function (err, db) {
+            var useImage = db.collection('imageData');
+
+        });
+        res.render('handleImage',{
+
+        });
+    }
+    else {
+        res.redirect('/');
+    }
+});
+*/
 
 //Indoor CAMERA
 app.get('/motion', function (req, res) {
@@ -598,7 +652,7 @@ app.get('/motion', function (req, res) {
 //CHAT page using NodeJs, MongoDB and Socket.io
 app.get('/chat', function(req, res){
     if (loginFlag === true){
-        res.render('chat');
+        //res.render('chat');
         MongoClient.connect(mongourl, function (err, db) {
             if(err){
                 throw err;
@@ -657,7 +711,7 @@ app.get('/chat', function(req, res){
                 });
             }); //bracket of client.on
         });     //bracket of mongo
-        //res.render('chat');
+        res.render('chat');
     }
     else
         res.redirect('/');
@@ -779,6 +833,9 @@ app.get('/checkChangedFlag', function(req,res){
     res.end(JSON.stringify(checkChangedFlag));
 });
 
+
+var t1 = performance.now();
+console.log('time taken to run '+ (t1-t0)+ ' ms');
 
 /*
 app.get('/process_get', function (req, res) {

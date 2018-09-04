@@ -1,0 +1,158 @@
+<!-- /. NAV SIDE  -->
+<nav class="navbar-default navbar-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav" id="main-menu">
+            <li>
+                <a class="active-menu"><i class="fa fa-camera"></i> Handle Images</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- put this before page inner (body) to load every scripts before body -->
+
+
+<!-- /. PAGE WRAPPER  -->
+<div id="page-wrapper" >
+    <div id="page-inner">
+        <style>
+            video {
+                position: absolute;
+                top: 100px;
+            }
+            #popup {
+                width:160px;
+                height:80px;
+                padding:20px;
+                background-color:transparent;
+                position:absolute;
+                left: 20px;
+                top:100px;
+                display:none;
+            }
+            #takePhotoBtn{
+                top: 100px;
+                left: 360px;
+                position: absolute;
+            }
+            canvas {
+                position: absolute;
+                top: 360px;
+                left: 40px;
+            }
+        </style>
+        <h2> Process Image Data</h2>
+
+        <!-- handle popup
+        <button onclick="showPopUp()">Enter your name</button>
+        <div id="popup">
+            <div>Enter your name:</div>
+            <form action = "/imageData", method = "post">
+            <input id="inputClass" name="inputClass"/>
+            <button onclick="enterClass()">Submit</button>
+            </form>
+        </div>
+        -->
+        <video id="inputVideo" width="320" height="240" autoplay muted></video>
+        <canvas id="takePhotoCanvas"></canvas>
+        <button onclick="snapShot()" id="takePhotoBtn"> Take photo</button>
+    </div>
+</div>
+
+<script>
+    //init settings
+    var video = document.getElementById('inputVideo');
+    var canvas = document.getElementById('takePhotoCanvas');
+    var localMediaStream = null;
+    var maxNumber = 5;
+
+    var ctx = canvas.getContext('2d');
+    ctx.imageSmoothingQuality = "high";
+    canvas.width = 320;
+    canvas.height = 240;
+
+    globals = {}
+    function globalVar () {
+        globals['dataUrl'] = "";
+        globals['blobData'] = null;
+    }
+    //var dataURL = canvas.toDataURL('image/jpeg', 1.0);
+    //console.log(dataURL);
+
+    globalVar();
+
+    //get access to webcam
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+        navigator.mediaDevices.getUserMedia({video: true})
+                .then(function (stream) {
+                    video.src = window.URL.createObjectURL(stream);
+                    localMediaStream = stream;
+                    video.play();
+                })
+    }
+
+    //take photo by drawing onto Canvas element
+    function snapShot() {
+        if (localMediaStream) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            globals.dataUrl = canvas.toDataURL('image/png');                    //convert image to base64 encode
+            //var strImg = (globals.dataUrl).replace(/^data:image\/[a-z]+;base64,/, "");
+            console.log('base64 data is ' + globals.dataUrl);
+            postToServer()
+        }
+    }
+
+    function postToServer(){
+        //base64 encoded
+        var tempImgData = globals.dataUrl;
+        //remove the useless part as they say
+        var onlyData = tempImgData.replace(/^data:image\/(png|gif|jpeg);base64,/,'');
+        //console.log('result '+ onlyData);
+
+        //use 'imgStr' to post "string" data to nodejs
+        $.post('./imageData',
+                {'imgStr': onlyData},
+                function (result) {
+            console.log('done', result);
+        })
+    }
+
+    //append to formdata
+    //change onlyData to globals.blobData in case needed
+    //var imgData = new FormData();
+    //imgData.append('takenSnapshot', onlyData)
+
+    /*
+    //function handle password entered
+    function enterClass() {
+        document.getElementById("popup").style.display = "none";
+        var className = document.getElementById("inputClass").value;
+
+        //DO STUFF WITH PASSWORD HERE
+    }
+
+    function showPopUp() {
+        document.getElementById("popup").style.display = "block";
+    }
+    */
+
+    /*
+function saveToBlob() {
+    fetch(globals.dataUrl)
+            .then(res => res.blob())
+            .then(blob => {
+                globals.blobData = blob;
+                //console.log(blob);
+                console.log('dataBlob is ' + globals.blobData);
+                /*
+                var reader = new FileReader();
+                reader.readAsText(blob);
+                reader.onloadend = function () {
+                    data = reader.result;
+                    console.log(data);
+                }
+            })
+}
+*/
+</script>
+
