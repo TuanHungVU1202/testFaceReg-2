@@ -10,13 +10,14 @@
 </nav>
 
 <!-- put this before page inner (body) to load every scripts before body -->
-
+<script src="../camTracking/build/tracking-min.js"></script>
+<script src="../camTracking/build/data/face-min.js"></script>
 
 <!-- /. PAGE WRAPPER  -->
 <div id="page-wrapper" >
     <div id="page-inner">
         <style>
-            video {
+            video, #overlayCanvas {
                 position: absolute;
                 top: 100px;
             }
@@ -30,16 +31,37 @@
                 top:100px;
                 display:none;
             }
-            #takePhotoBtn{
+            #startBtn {
                 top: 100px;
-                left: 360px;
+                left: 370px;
                 position: absolute;
             }
-            canvas {
+            #stopBtn {
+                top: 130px;
+                left: 370px;
                 position: absolute;
-                top: 360px;
-                left: 40px;
             }
+            #sendBtn {
+                top: 160px;
+                left: 370px;
+                position: absolute;
+            }
+            #faceCanvas {
+                left: 500px;
+                top: 100px;
+                position: absolute;
+            }
+            #inviCanvas {
+                left: 500px;
+                top: 250px;
+                position: absolute;
+            }
+            #grayCanvas {
+                left: 500px;
+                top: 400px;
+                position: absolute;
+            }
+
         </style>
         <h2> Process Image Data</h2>
 
@@ -54,32 +76,193 @@
         </div>
         -->
         <video id="inputVideo" width="320" height="240" autoplay muted></video>
-        <canvas id="takePhotoCanvas"></canvas>
-        <button onclick="snapShot()" id="takePhotoBtn"> Take photo</button>
+        <canvas id="overlayCanvas"></canvas>
+        <canvas id="faceCanvas"></canvas>
+        <canvas id="inviCanvas"></canvas>
+        <canvas id="grayCanvas"></canvas>
+        <button id="startBtn"> Start tracking</button>
+        <button id="stopBtn"> Stop tracking</button>
+        <button id="sendBtn"> Upload Images</button>
     </div>
 </div>
 
 <script>
     //init settings
-    var video = document.getElementById('inputVideo');
-    var canvas = document.getElementById('takePhotoCanvas');
+    var startTracking = document.getElementById('startBtn')
+    var stopTracking = document.getElementById('stopBtn')
+    var sendImg = document.getElementById('sendBtn')
+
+    var video;
+    var detectCanvas, imDetectCanvas
+    var faceImgCanvas, imFaceCanvas
+    var inviCanvas, imInviCanvas
+    var grayCanvas, imGrayCanvas
+
+
+    //setup video canvas and its overlay
+    //canvas, imcanvas
+    video = document.getElementById('inputVideo');
+    detectCanvas = document.getElementById('overlayCanvas');
+    imDetectCanvas = detectCanvas.getContext('2d');
+    //imDetectCanvas.imageSmoothingQuality = "high";
+    detectCanvas.width = 320;
+    detectCanvas.height = 240;
+
+    //setup canvas to draw detected Face Image
+    //canvas2, imcanvas2
+    faceImgCanvas = document.getElementById('faceCanvas');
+    imFaceCanvas = faceImgCanvas.getContext('2d');
+    faceImgCanvas.width = 100;
+    faceImgCanvas.height = 100;
+
+    //setup invi canvas
+    //canvas3, imcanvas3
+    inviCanvas = document.getElementById('inviCanvas');
+    imInviCanvas = inviCanvas.getContext('2d');
+    inviCanvas.width = 100;
+    inviCanvas.height = 100;
+
+    //setup canvas for grayscale img
+    grayCanvas = document.getElementById('grayCanvas')
+    imGrayCanvas = grayCanvas.getContext('2d')
+    grayCanvas.width = 100;
+    grayCanvas.height = 100;
+
+    //setup for buttons
+    startTracking.addEventListener('click', trackerStart)
+    stopTracking.addEventListener('click', trackerStop)
+    sendImg.addEventListener('click', postToServer)
+
+    var captureFlag = false;
     var localMediaStream = null;
     var maxNumber = 5;
-
-    var ctx = canvas.getContext('2d');
-    ctx.imageSmoothingQuality = "high";
-    canvas.width = 320;
-    canvas.height = 240;
+    var dx=0, dy=0;
+    var personName;
+    var numFaces = {numVal: 0, oldVal: 0}
 
     globals = {}
     function globalVar () {
         globals['dataUrl'] = "";
         globals['blobData'] = null;
     }
-    //var dataURL = canvas.toDataURL('image/jpeg', 1.0);
-    //console.log(dataURL);
+
+    //init tracker of tracking.js
+    var faceTracker = new tracking.ObjectTracker("face")
+    faceTracker.setInitialScale(4)
+    faceTracker.setEdgesDensity(0.1)
+    faceTracker.setStepSize(1.5)
+
+    //tracker on video
+    var myTracker = tracking.track("#inputVideo", faceTracker, {camera: true})
+    faceTracker.on("track", handleFaces)
+
 
     globalVar();
+    trackerStop();
+
+
+    function trackerStop() {
+        myTracker.stop();
+    }
+
+
+    function trackerStart() {
+        personName = prompt("Enter your name")
+        numFaces.numVal = 0;
+        myTracker.run();
+    }
+
+
+    function handleFaces (event) {
+        imDetectCanvas.clearRect(0, 0, detectCanvas.width, detectCanvas.height)
+        imDetectCanvas.drawImage(video, 0, 0, detectCanvas.width, detectCanvas.height)
+        dx=0;
+        dy=0;
+        var length = event.data.length;
+        if (length !== numFaces.numVal) {
+            console.log ("found new face");
+            handleChange(length);
+            handleNewFaces(event.data)
+        } else {
+            for (var data_cx in event.data) {
+                drawBoundingBox (event.data[data_cx])
+            }
+            console.log("old face");
+        }
+    }
+
+
+    function handleChange(newVal) {
+        numFaces.numVal = newVal;
+    }
+
+
+    function handleNewFaces(data) {
+        imFaceCanvas.clearRect (0, 0, faceImgCanvas.width, faceImgCanvas.height)
+        for (var data_cx in data) {
+            var temp = data[data_cx];
+            //personName = prompt("Enter your name");
+            drawBoundingBox(temp)
+            cropFace(temp)
+        }
+    }
+
+    function drawBoundingBox(rect) {
+        imDetectCanvas.font = "32   px serif";
+        imDetectCanvas.fillStyle = "white";
+        imDetectCanvas.fillText(personName, rect.x, rect.y);
+        imDetectCanvas.stroke();
+        imDetectCanvas.strokeStyle = "blue";
+        imDetectCanvas.lineWidth = "1";
+        imDetectCanvas.strokeRect(rect.x, rect.y, rect.width, rect.height);
+        imDetectCanvas.stroke();
+    }
+
+
+    /*  for function gray()
+        * Use 4 canvas in which
+        * getImgData from Cam then PutImgData to detectCanvas (overlay)
+        * Then get ImgData from GRAY Img then putImgData to inviCanvas
+        * finally drawImg to GrayCanvas
+     */
+    function cropFace(person) {
+        var tmp = imDetectCanvas.getImageData(person.x, person.y, person.width, person.height)
+        imFaceCanvas.putImageData(tmp, dx, dy);
+        dy += person.height + 2;
+        gray()
+    }
+
+
+    function gray(){
+        /*
+        convert the image to gray scale ...
+        the formula to convert an image to gray scale is quite simple
+        every pixel  = I(x,y) -> G(a,b)
+        such that G(a,b) = 0.21R + 0.72G + 0.07B
+         */
+
+        console.log("Gray operation to be performed");
+        // 32 bit image
+        var grayImg = imFaceCanvas.getImageData(0, 0, faceImgCanvas.width, faceImgCanvas.height);
+        console.log(grayImg.data.length);
+        console.log(grayImg);
+        var channels = grayImg.data.length/4;
+        for(var i=0;i<channels;i++){
+            var r = grayImg.data[i*4 + 0];
+            var g = grayImg.data[i*4 + 1];
+            var b = grayImg.data[i*4 + 2];
+            var gray =  Math.round(0.21*r + 0.72*g + 0.07*b);
+            grayImg.data[i*4 + 0] = gray;
+            grayImg.data[i*4 + 1] = gray;
+            grayImg.data[i*4 + 2] = gray;
+        }
+
+        console.log(grayImg)
+        imInviCanvas.putImageData(grayImg, 0, 0)
+        imGrayCanvas.drawImage(inviCanvas, 0, 0, inviCanvas.width, inviCanvas.height)
+        globals.dataUrl = grayCanvas.toDataURL('image/png')
+    }
+
 
     //get access to webcam
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
@@ -87,20 +270,10 @@
                 .then(function (stream) {
                     video.src = window.URL.createObjectURL(stream);
                     localMediaStream = stream;
-                    video.play();
+                    //video.play();
                 })
     }
 
-    //take photo by drawing onto Canvas element
-    function snapShot() {
-        if (localMediaStream) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            globals.dataUrl = canvas.toDataURL('image/png');                    //convert image to base64 encode
-            //var strImg = (globals.dataUrl).replace(/^data:image\/[a-z]+;base64,/, "");
-            console.log('base64 data is ' + globals.dataUrl);
-            postToServer()
-        }
-    }
 
     function postToServer(){
         //base64 encoded
@@ -111,12 +284,23 @@
 
         //use 'imgStr' to post "string" data to nodejs
         $.post('./imageData',
-                {'imgStr': onlyData, 'className': 'hung'},
+                {'imgStr': onlyData, 'className': personName},
                 function (result) {
             console.log('done', result);
         })
     }
 
+
+    /*
+    //take photo by drawing onto Canvas element
+    function snapShot() {
+        if (localMediaStream) {
+            imDetectCanvas.drawImage(video, 0, 0, detectCanvas.width, detectCanvas.height);
+            //var strImg = (globals.dataUrl).replace(/^data:image\/[a-z]+;base64,/, "");
+            console.log('base64 data is ' + globals.dataUrl);
+        }
+    }
+*/
     //append to formdata
     //change onlyData to globals.blobData in case needed
     //var imgData = new FormData();
@@ -155,4 +339,12 @@ function saveToBlob() {
 }
 */
 </script>
+
+<!--
+            #overlayCanvas {
+                position: absolute;
+                top: 360px;
+                left: 40px;
+            }
+-->
 

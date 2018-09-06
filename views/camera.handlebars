@@ -173,7 +173,7 @@
                             closeDoor()
                             //console.log('done close in OpenDoor');
                             updateData()
-                        }, 7000)
+                        }, 10000)
                         //console.log('DONE OWNER');
                         //console.log(globals.isKnown);
                     }
@@ -188,7 +188,7 @@
                         globals.isUnknown = true;
                         //closeDoor()
                         updateData()
-                        var registerCheck = confirm('You are not yet register to the system. Do you want to add your information to the Database?\n***If yes, click "OK"\n***Otherwise, click Cancel!');
+                        var registerCheck = confirm('You are not yet register to the system. Do you want to add your information to the Database?\n1. If yes, click "OK"\n2. Otherwise, click Cancel!');
                         if (registerCheck == true){
                             console.log('registered');
                             confirm('Please enter Master password');
@@ -225,7 +225,6 @@
 
         // init reference data, e.g. compute a face descriptor for each class
         trainDescriptorsByClass = await initTrainDescriptorsByClass(faceapi.recognitionNet)
-
         modelLoaded = true
 
         // try to access users webcam and stream the images
