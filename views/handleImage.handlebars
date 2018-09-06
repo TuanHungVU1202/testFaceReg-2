@@ -82,7 +82,7 @@
         <canvas id="grayCanvas"></canvas>
         <button id="startBtn"> Start tracking</button>
         <button id="stopBtn"> Stop tracking</button>
-        <button id="sendBtn"> Upload Images</button>
+        <button id="sendBtn" onclick="postToServer()"> Upload Images</button>
     </div>
 </div>
 
@@ -131,11 +131,20 @@
     //setup for buttons
     startTracking.addEventListener('click', trackerStart)
     stopTracking.addEventListener('click', trackerStop)
-    sendImg.addEventListener('click', postToServer)
 
+    //disable button after 5 clicks
+    var counter = 0;
+    var maxNumber = 5;
+ /*   if (counter < maxNumber) {
+        sendImg.addEventListener('click', postToServer)
+        counter ++;
+    } else {
+        document.getElementById("sendBtn").disabled = true;
+        console.log('saved 5 times');
+    }
+*/
     var captureFlag = false;
     var localMediaStream = null;
-    var maxNumber = 5;
     var dx=0, dy=0;
     var personName;
     var numFaces = {numVal: 0, oldVal: 0}
@@ -208,7 +217,7 @@
     }
 
     function drawBoundingBox(rect) {
-        imDetectCanvas.font = "32   px serif";
+        imDetectCanvas.font = "21px serif";
         imDetectCanvas.fillStyle = "white";
         imDetectCanvas.fillText(personName, rect.x, rect.y);
         imDetectCanvas.stroke();
@@ -260,6 +269,7 @@
         console.log(grayImg)
         imInviCanvas.putImageData(grayImg, 0, 0)
         imGrayCanvas.drawImage(inviCanvas, 0, 0, inviCanvas.width, inviCanvas.height)
+        //convert grayImg to base64 data to post back to nodejs server
         globals.dataUrl = grayCanvas.toDataURL('image/png')
     }
 
@@ -276,18 +286,25 @@
 
 
     function postToServer(){
-        //base64 encoded
-        var tempImgData = globals.dataUrl;
-        //remove the useless part as they say
-        var onlyData = tempImgData.replace(/^data:image\/(png|gif|jpeg);base64,/,'');
-        //console.log('result '+ onlyData);
+        if (counter < maxNumber) {
+            //base64 encoded
+            var tempImgData = globals.dataUrl;
+            //remove the useless part as they say
+            var onlyData = tempImgData.replace(/^data:image\/(png|gif|jpeg);base64,/, '');
+            //console.log('result '+ onlyData);
 
-        //use 'imgStr' to post "string" data to nodejs
-        $.post('./imageData',
-                {'imgStr': onlyData, 'className': personName},
-                function (result) {
-            console.log('done', result);
-        })
+            //use 'imgStr' to post "string" data to nodejs
+            $.post('./imageData',
+                    {'imgStr': onlyData, 'className': personName},
+                    function (result) {
+                        console.log('done', result);
+                    })
+            counter++
+        } else {
+            alert('Only 5 photos needed! Redirecting to Outdoor Security Camera page')
+            document.getElementById('sendBtn').disabled = true
+            document.location.replace('./camera');
+        }
     }
 
 
