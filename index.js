@@ -9,9 +9,11 @@ var express = require('express');		//add comment de test github update
 var app = express();
 var exphbs  = require('express-handlebars');
 assert = require('assert');
+var max = 5;
+
+//vars for handleImage pages
 var fs = require ('fs');
-var pathToRaw = 'public/images/forProcess/raw/';
-var pathToFinal = 'public/images/forProcess/final/';
+var pathToImgArray = [];
 
 
 //var multer = require('multer');
@@ -148,17 +150,31 @@ app.post('/logincheckCamera', function(req,res){
 app.get('/handleImage', function(req, res) {
     if (loginCamFlag === true) {
         app.post('/imageData', function (req, res) {
-            var imgStringData = req.body.imgStr;
-            var buffer = new Buffer(imgStringData, 'base64');
-            fs.writeFileSync(pathToRaw+"out.png", buffer, 'base64', function(err) {
-                console.log(err);
-            });
             var newPerson = req.body.className;
-            console.log(newPerson);
+            var imgStringData = req.body.imgStr;
+            var pathToImg = getFaceImagePath(newPerson, pathToImgArray.length + 1);
+            pathToImgArray.push(pathToImg);
+            console.log(pathToImg);
+            console.log(pathToImgArray.length);
+            for (let i =1; i < max +1; i++) {
+                var buffer = new Buffer(imgStringData, 'base64');
+                fs.writeFileSync(pathToImg, buffer, 'base64', function (err) {
+                    console.log(err);
+                })
+            } //for bracket
         })
         res.render('handleImage');
     }
 })
+
+function getFaceImagePath(newClassName, idx) {
+    //ensure directory exists
+    if (!fs.existsSync(`public/images/${newClassName}`)) {
+        fs.mkdirSync(`public/images/${newClassName}`);
+    }
+    return `public/images/${newClassName}/${newClassName}${idx}.png`
+}
+
 
 
 //LOGIN Page
