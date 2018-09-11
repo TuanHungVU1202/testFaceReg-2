@@ -1,4 +1,5 @@
-const classes = ['hung', 'amy', 'raj', 'stuart', 'va']
+//var classes = ['amy', 'raj', 'stuart', 'va']
+var classes = []
 
 function getImageUri(imageName) {
   return `images/${imageName}`

@@ -12,6 +12,7 @@
 <!-- put this before page inner (body) to load every scripts before body -->
 <script src="../camTracking/build/tracking-min.js"></script>
 <script src="../camTracking/build/data/face-min.js"></script>
+<script src="commonsForFaceApi.js"></script>
 
 <!-- /. PAGE WRAPPER  -->
 <div id="page-wrapper" >
@@ -132,22 +133,14 @@
     startTracking.addEventListener('click', trackerStart)
     stopTracking.addEventListener('click', trackerStop)
 
-    //disable button after 5 clicks
     var counter = 0;
     var maxNumber = 5;
- /*   if (counter < maxNumber) {
-        sendImg.addEventListener('click', postToServer)
-        counter ++;
-    } else {
-        document.getElementById("sendBtn").disabled = true;
-        console.log('saved 5 times');
-    }
-*/
-    var captureFlag = false;
+
     var localMediaStream = null;
     var dx=0, dy=0;
     var personName;
     var numFaces = {numVal: 0, oldVal: 0}
+    var savedPeople = []
 
     globals = {}
     function globalVar () {
@@ -159,15 +152,22 @@
     var faceTracker = new tracking.ObjectTracker("face")
     faceTracker.setInitialScale(4)
     faceTracker.setEdgesDensity(0.1)
-    faceTracker.setStepSize(1.5)
+    faceTracker.setStepSize(1.7)
 
     //tracker on video
     var myTracker = tracking.track("#inputVideo", faceTracker, {camera: true})
     faceTracker.on("track", handleFaces)
 
-
+    //run these functions on loaded
+    //loadDB();
     globalVar();
     trackerStop();
+
+    //check DB then push to class to init training set for uses
+    //Use in both handleImage and camera (views)
+    function loadDB () {
+
+    }
 
 
     function trackerStop() {
@@ -177,10 +177,16 @@
 
     function trackerStart() {
         personName = prompt("Enter your name")
-        numFaces.numVal = 0;
-        myTracker.run();
+        //check classes to see if NAME already exist? (after checkDB function)
+        if (classes.includes(personName)) {
+            personName = prompt("Name existed, please use another name!")
+            numFaces.numVal = 0;
+            myTracker.run();
+        } else {
+            numFaces.numVal = 0;
+            myTracker.run();
+        }
     }
-
 
     function handleFaces (event) {
         imDetectCanvas.clearRect(0, 0, detectCanvas.width, detectCanvas.height)
@@ -196,7 +202,7 @@
             for (var data_cx in event.data) {
                 drawBoundingBox (event.data[data_cx])
             }
-            console.log("old face");
+            //console.log("old face");
         }
     }
 

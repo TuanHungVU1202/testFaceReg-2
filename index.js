@@ -146,22 +146,48 @@ app.post('/logincheckCamera', function(req,res){
     }
 });
 
+//check existing directory in training directory
+MongoClient.connect(mongourl, function (err, db) {
+    var imgData = db.collection('imgData')
+})
+
 //then Get handleImage page
 app.get('/handleImage', function(req, res) {
     if (loginCamFlag === true) {
-        app.post('/imageData', function (req, res) {
-            var newPerson = req.body.className;
-            var imgStringData = req.body.imgStr;
-            var pathToImg = getFaceImagePath(newPerson, pathToImgArray.length + 1);
-            pathToImgArray.push(pathToImg);
-            console.log(pathToImg);
-            console.log(pathToImgArray.length);
-            for (let i =1; i < max +1; i++) {
-                var buffer = new Buffer(imgStringData, 'base64');
-                fs.writeFileSync(pathToImg, buffer, 'base64', function (err) {
-                    console.log(err);
-                })
-            } //for bracket
+        MongoClient.connect(mongourl, function (err, db) {
+            //access moongoDB
+            var imgData = db.collection('imgData')
+            //receive POST request from Client
+            app.post('/imageData', function (req, res) {
+                var newPerson = req.body.className;
+                var imgStringData = req.body.imgStr;
+                //get path to Imgs
+                var pathToImg = getFaceImagePath(newPerson, pathToImgArray.length + 1);
+                pathToImgArray.push(pathToImg);
+                //get Base Url to Imgs
+                var basePathToImg = path.dirname(pathToImg)
+                //save to mongoDB block
+                imgData.updateMany(
+                    {"Registered As": newPerson},
+                    {$set: {basePath: basePathToImg}},
+                    {upsert: true}
+                )
+                imgData.updateMany(
+                    {"Registered As": newPerson},
+                    {$addToSet: {detailPath: pathToImg}}
+                )
+                //save file to local disk block
+                for (let i =1; i < max +1; i++) {
+                    var buffer = new Buffer(imgStringData, 'base64');
+                    fs.writeFileSync(pathToImg, buffer, 'base64', function (err) {
+                        console.log(err);
+                    })
+                } //for bracket
+                //empty array after write 5 photos
+                if (pathToImgArray.length === max) {
+                    pathToImgArray = []
+                }
+            })
         })
         res.render('handleImage');
     }
@@ -169,12 +195,12 @@ app.get('/handleImage', function(req, res) {
 
 function getFaceImagePath(newClassName, idx) {
     //ensure directory exists
-    if (!fs.existsSync(`public/images/${newClassName}`)) {
-        fs.mkdirSync(`public/images/${newClassName}`);
+    //must have ./ before public in order for copying to another dir to work
+    if (!fs.existsSync(`./public/images/${newClassName}`)) {
+        fs.mkdirSync(`./public/images/${newClassName}`);
     }
-    return `public/images/${newClassName}/${newClassName}${idx}.png`
+    return `./public/images/${newClassName}/${newClassName}${idx}.png`
 }
-
 
 
 //LOGIN Page
@@ -247,6 +273,7 @@ app.get('/home', function (req, res) {
     else 
         res.redirect('/');
 });
+
 
 /*CONTROL
     Link with control.handlerbars, see device1ButtonColor and so on
