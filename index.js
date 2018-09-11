@@ -147,9 +147,20 @@ app.post('/logincheckCamera', function(req,res){
 });
 
 //check existing directory in training directory
-MongoClient.connect(mongourl, function (err, db) {
-    var imgData = db.collection('imgData')
-})
+function loadImgDir () {
+    MongoClient.connect(mongourl, function (err, db) {
+        var imgData = db.collection('imgData')
+        fs.readdir('./public/images', function (err, existedPeople) {
+            //files is the return array of name of dir
+            existedPeople.forEach(function (theirName) {
+                console.log(theirName);
+            })
+        })
+    })
+}
+
+//call function at the beginning to load
+loadImgDir();
 
 //then Get handleImage page
 app.get('/handleImage', function(req, res) {
@@ -159,8 +170,8 @@ app.get('/handleImage', function(req, res) {
             var imgData = db.collection('imgData')
             //receive POST request from Client
             app.post('/imageData', function (req, res) {
-                var newPerson = req.body.className;
-                var imgStringData = req.body.imgStr;
+                var newPerson = req.body.className
+                var imgStringData = req.body.imgStr
                 //get path to Imgs
                 var pathToImg = getFaceImagePath(newPerson, pathToImgArray.length + 1);
                 pathToImgArray.push(pathToImg);
@@ -169,12 +180,12 @@ app.get('/handleImage', function(req, res) {
                 //save to mongoDB block
                 imgData.updateMany(
                     {"Registered As": newPerson},
-                    {$set: {basePath: basePathToImg}},
+                    {$set: {"Base path": basePathToImg}},
                     {upsert: true}
                 )
                 imgData.updateMany(
                     {"Registered As": newPerson},
-                    {$addToSet: {detailPath: pathToImg}}
+                    {$addToSet: {"Image path": pathToImg}}
                 )
                 //save file to local disk block
                 for (let i =1; i < max +1; i++) {

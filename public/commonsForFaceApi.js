@@ -1,5 +1,5 @@
-//var classes = ['amy', 'raj', 'stuart', 'va']
-var classes = []
+var classes = ['amy', 'raj', 'stuart', 'va', 'hung', 'pa']
+//var classes = []
 
 function getImageUri(imageName) {
   return `images/${imageName}`
