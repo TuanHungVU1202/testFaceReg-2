@@ -116,6 +116,18 @@
         globals['isUnknown'] = false;
     }
 
+
+    //receive Array from server side
+    var loadExistedPeople = "{{existedPeople}}";
+    var removeUselessChar = loadExistedPeople.replace(/(&quot\;)/g,"\"")
+    //JSON.parse convert JSON.stringtify from string back to array object
+    var receivedArray = JSON.parse(removeUselessChar)
+    //use Slice method to copy received array to classes array to train
+    classes = receivedArray.slice();
+    console.log(receivedArray);
+    console.log('is ', classes);
+
+
     //function after Video is played
     async function onPlay(videoEl) {
         if (videoEl.paused || videoEl.ended || !modelLoaded || globals.isKnown === true || globals.isUnknown === true)

@@ -15,6 +15,9 @@ var max = 5;
 var fs = require ('fs');
 var pathToImgArray = [];
 
+//for loadImgDir function
+var basePathToImgDir = './public/images'
+
 
 //var multer = require('multer');
 //var upload = multer({dest: 'uploads/'})
@@ -146,21 +149,12 @@ app.post('/logincheckCamera', function(req,res){
     }
 });
 
-//check existing directory in training directory
-function loadImgDir () {
-    MongoClient.connect(mongourl, function (err, db) {
-        var imgData = db.collection('imgData')
-        fs.readdir('./public/images', function (err, existedPeople) {
-            //files is the return array of name of dir
-            existedPeople.forEach(function (theirName) {
-                console.log(theirName);
-            })
-        })
-    })
-}
 
-//call function at the beginning to load
+//call function at the beginning to load DB at the beginning
+//set Interval for it to rerun after some times  <<======= TOO LAGGY
+//Restart server is a better solution
 loadImgDir();
+
 
 //then Get handleImage page
 app.get('/handleImage', function(req, res) {
@@ -211,6 +205,37 @@ function getFaceImagePath(newClassName, idx) {
         fs.mkdirSync(`./public/images/${newClassName}`);
     }
     return `./public/images/${newClassName}/${newClassName}${idx}.png`
+}
+
+//check existing directory in training directory
+function loadImgDir () {
+    MongoClient.connect(mongourl, function (err, db) {
+        var imgData = db.collection('imgData')
+        //read base directory contains classes
+        fs.readdir(basePathToImgDir, function (err, existedPeople) {
+            //files is the return array of name of dir
+            existedPeople.forEach(function (theirName) {
+                var basePathToImg = basePathToImgDir +"/"+ theirName
+                imgData.updateMany(
+                    {"Registered As": theirName},
+                    {$set: {"Base path": basePathToImg }},
+                    {upsert: true}
+                )
+                //read sub directory
+                fs.readdir(basePathToImg, function (err, toSubDir) {
+                    toSubDir.forEach(function (toTheirImgPath) {
+                        var pathToImg = basePathToImg + "/" + toTheirImgPath
+                        imgData.updateMany(
+                            {"Registered As": theirName},
+                            {$addToSet: {"Image path": pathToImg}}
+                        )
+                        //console.log(toTheirImgPath);
+                    })
+                })
+                //console.log(theirName);
+            })
+        })
+    })
 }
 
 
@@ -625,6 +650,10 @@ app.get('/camera', function (req, res) {
         MongoClient.connect(mongourl, function (err, db) {
             //config devices for floor1
             var floor1 = db.collection('floor1');
+            //config imgData DB to load imgData from DB
+            var imgData = db.collection('imgData')
+            //read Data from DB at the beginning
+            var receivedDataFromDB = imgData.distinct("Registered As")
 
             //Check current device state from MongoDB to keep the website up to date
             //setInterval to run the inside function repeatedly with Interval = 10ms to keep website up-to-date as fast as possible
@@ -637,7 +666,7 @@ app.get('/camera', function (req, res) {
                         deviceState.device3 = doc.state;
                     }
                 );
-            },0);       //10000 ms
+            },0);       //0 ms
 
             // Post state of devices to control them
             app.post('/device3', function () {
@@ -659,34 +688,21 @@ app.get('/camera', function (req, res) {
                 }
                 checkChangedFlag.changedFlagStatus = "true";
             });
-        });
 
-        res.render('camera', {
-            device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
-            device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
+            receivedDataFromDB.then(function (existedPeople) {
+                console.log("kq la: ", existedPeople);
+                res.render('camera', {
+                    device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
+                    device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
+                    existedPeople: JSON.stringify(existedPeople)
+                })
+            })
         });
     //}
     //else
     //    res.redirect('/');
 });
 
-/*
-//Page to add Photos to  process and train
-app.get('/handleImage', function (req, res) {
-    if (loginCamFlag === true){
-        MongoClient.connect(mongourl, function (err, db) {
-            var useImage = db.collection('imageData');
-
-        });
-        res.render('handleImage',{
-
-        });
-    }
-    else {
-        res.redirect('/');
-    }
-});
-*/
 
 //Indoor CAMERA
 app.get('/motion', function (req, res) {
