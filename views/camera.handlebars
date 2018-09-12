@@ -118,6 +118,7 @@
 
 
     //receive Array from server side
+    //received data passed to existedPeople in res.render part
     var loadExistedPeople = "{{existedPeople}}";
     var removeUselessChar = loadExistedPeople.replace(/(&quot\;)/g,"\"")
     //JSON.parse convert JSON.stringtify from string back to array object

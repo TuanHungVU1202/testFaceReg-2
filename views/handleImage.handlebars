@@ -281,14 +281,11 @@
 
 
     //get access to webcam
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-        navigator.mediaDevices.getUserMedia({video: true})
-                .then(function (stream) {
-                    video.src = window.URL.createObjectURL(stream);
-                    localMediaStream = stream;
-                    //video.play();
-                })
-    }
+    navigator.getUserMedia(
+            { video: {} },
+            stream => video.srcObject = stream,
+            err => console.error(err)
+    )
 
 
     function postToServer(){

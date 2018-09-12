@@ -690,7 +690,7 @@ app.get('/camera', function (req, res) {
             });
 
             receivedDataFromDB.then(function (existedPeople) {
-                console.log("kq la: ", existedPeople);
+                //console.log("kq la: ", existedPeople);
                 res.render('camera', {
                     device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
                     device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
