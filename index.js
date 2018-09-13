@@ -1,42 +1,43 @@
 //check running time for the whole server
-const {performance} = require('perf_hooks');
-var t0 = performance.now();
-//var fetch = require('node-fetch');
-//var pug = require('pug');
+const {performance} = require('perf_hooks')
+var t0 = performance.now()
+
 
 //program starts here
-var express = require('express');		//add comment de test github update
-var app = express();
-var exphbs  = require('express-handlebars');
-assert = require('assert');
-var max = 5;
+var express = require('express')		//add comment de test github update
+var app = express()
+var exphbs  = require('express-handlebars')
 
 //vars for handleImage pages
-var fs = require ('fs');
-var pathToImgArray = [];
+var fs = require ('fs')
+var pathToImgArray = []
+
+//config server on port 2111
+//and setup SSL cert for https
+var port = process.env.PORT || 2111
+app.listen(port, function() {
+    console.log("App is running on port " + port)
+})
+
+
+assert = require('assert')
+var max = 5
+
 
 //for loadImgDir function
 var basePathToImgDir = './public/images'
 
-
-//var multer = require('multer');
-//var upload = multer({dest: 'uploads/'})
-
-
-//config server on port 2111
-var port = process.env.PORT || 2111;
-app.listen(port, function() {
-    console.log("App is running on port " + port);
-});
 
 //mongodb on mlab
 var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
 //var mongourl= 'mongodb://localhost:27017/myDatabase';
 var MongoClient = require('mongodb').MongoClient;
 
+
 //setup socket.io
 const client = require('socket.io').listen(1202).sockets;
 
+//setup views
 const path = require('path');
 app.set('view engine', 'handlebars');
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
@@ -48,6 +49,7 @@ app.use(bodyParser.urlencoded({
     limit: '50mb'
 }));
 app.use(bodyParser.json({limit: '50mb'}));
+
 
 //Init variables for data from Sensor
 var temperature = 21;
