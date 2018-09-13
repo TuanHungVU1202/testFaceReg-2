@@ -30,8 +30,8 @@ app.listen(port, function() {
 });
 
 //mongodb on mlab
-//var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
-var mongourl= 'mongodb://localhost:27017/myDatabase';
+var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
+//var mongourl= 'mongodb://localhost:27017/myDatabase';
 var MongoClient = require('mongodb').MongoClient;
 
 //setup socket.io

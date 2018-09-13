@@ -117,17 +117,21 @@
     }
 
 
-    //receive Array from server side
-    //received data passed to existedPeople in res.render part
-    var loadExistedPeople = "{{existedPeople}}";
-    var removeUselessChar = loadExistedPeople.replace(/(&quot\;)/g,"\"")
-    //JSON.parse convert JSON.stringtify from string back to array object
-    var receivedArray = JSON.parse(removeUselessChar)
-    //use Slice method to copy received array to classes array to train
-    classes = receivedArray.slice();
-    console.log(receivedArray);
-    console.log('is ', classes);
+    //init functions run at the beginning
+    globalVar()
+    updateTrainingSet()
 
+
+    //receive Array from server side
+    function updateTrainingSet () {
+        //received data passed to existedPeople in res.render part
+        var loadExistedPeople = "{{existedPeople}}";
+        var removeUselessChar = loadExistedPeople.replace(/(&quot\;)/g, "\"")
+        //JSON.parse convert JSON.stringtify from string back to array object
+        var receivedArray = JSON.parse(removeUselessChar)
+        //use Slice method to copy received array to classes array to train
+        classes = receivedArray.slice();
+    }
 
     //function after Video is played
     async function onPlay(videoEl) {
@@ -214,9 +218,6 @@
                 }
             });                                              //fullFaceDescriptions.forEach brackets
     }
-
-        globalVar()
-
         //measure time taken to run detectFace function
         var t0 = performance.now();
         detectFace()
