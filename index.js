@@ -5,7 +5,7 @@ var t0 = performance.now()
 
 //program starts here
 var express = require('express')		//add comment de test github update
-var app = express()                 //add 2nd comment to test git on ubuntu; test 3rd
+var app = express()                 //4th time test push
 var exphbs  = require('express-handlebars')
 
 //vars for handleImage pages
