@@ -5,7 +5,7 @@ var t0 = performance.now()
 
 //program starts here
 var express = require('express')		//add comment de test github update
-var app = express()
+var app = express()                 //add 2nd comment to test git on ubuntu
 var exphbs  = require('express-handlebars')
 
 //vars for handleImage pages
@@ -79,7 +79,7 @@ var chartCount = 0;
 
 //Login variables for webServer
 var username = "vthung";
-var password = "admin"; 
+var password = "admin";
 var loginFlag = false;
 var masterPass = "lifeIn5Months";
 var loginCamFlag = false;
@@ -257,18 +257,18 @@ app.post('/logincheck', function(req,res){
 
 //then get HOME page
 app.get('/home', function (req, res) {
-    if(loginFlag === true){ 
+    if(loginFlag === true){
         MongoClient.connect(mongourl, function(err, db){
             chartCount = 0;
             chartTime = [];
             chartPower = [];
             assert.equal(null,err);
             var projection = {
-            	"date" :1, 
+            	"date" :1,
             	"year" :1,
-            	"month" :1, 
-            	"time" :1, 
-            	"P":1, 
+            	"month" :1,
+            	"time" :1,
+            	"P":1,
             	"_id":0};
             var d = new Date();
             var cursor = db.collection('test2').find({
@@ -289,7 +289,7 @@ app.get('/home', function (req, res) {
                     assert.equal(err, null);
                     return db.close();
                 }
-            ); 
+            );
         });
 
         //render page with route /home
@@ -306,9 +306,9 @@ app.get('/home', function (req, res) {
             letterInsideHumandetectionBox: (humanDetection === "YES") ? "red": "blue",
             letterInsideSecurityBox: (securityStatus === "ARMED") ? "blue": "red",
         });
-        
+
     }
-    else 
+    else
         res.redirect('/');
 });
 
@@ -596,18 +596,18 @@ app.get('/chart', function (req, res) {
             chartTime = [];
             chartPower = [];
             var projection = {
-                "date" :1, 
+                "date" :1,
                 "year" :1,
-                "month" :1, 
-                "time" :1, 
-                "P":1, 
+                "month" :1,
+                "time" :1,
+                "P":1,
                 "_id":0
             };
             var d = new Date();
             var cursor = db.collection('test2').find({
                 date: {$eq: dateFilter},
                 month: {$eq: monthFilter},
-                year: {$eq: yearFilter}  
+                year: {$eq: yearFilter}
             });
             cursor.project(projection);
             cursor.forEach(
@@ -621,7 +621,7 @@ app.get('/chart', function (req, res) {
                     assert.equal(err, null);
                     return db.close();
                 }
-            ); 
+            );
         });
         res.render('chart',{
             date: dateFilter,
@@ -846,7 +846,7 @@ app.get('/readStateFromSystem', function (req, res) {
 app.get('/temp', function (req, res) {
     res.end(JSON.stringify(temperature));		//return JSON contains value of temperature for customer (return directly on website)
 });
-app.get('/humid', function (req, res) {		
+app.get('/humid', function (req, res) {
     res.end(JSON.stringify(humid));				//return JSON contains value of humid for customer (return directly on website)
 });
 app.get('/gas', function (req, res) {
@@ -859,7 +859,7 @@ app.get('/gas', function (req, res) {
     */
 
 app.get('/readTempFromSystem', function (req, res) {
-    temperature = req.query.temperature;					
+    temperature = req.query.temperature;
 });
 app.get('/readHumidFromSystem', function (req, res) {
     humid = req.query.humid;
@@ -880,11 +880,11 @@ app.get('/readPowerFromSystem', function (req, res) {
     MongoClient.connect(mongourl, function(err, db){
         assert.equal(null,err);
         db.collection('test2').insertOne({
-        	"deviceID": "", 
-        	"date": d.getDate(), 
-        	"month": d.getMonth()+1, 
-        	"year": d.getFullYear(), 
-        	"time": d.getHours() + "." + d.getMinutes(), 
+        	"deviceID": "",
+        	"date": d.getDate(),
+        	"month": d.getMonth()+1,
+        	"year": d.getFullYear(),
+        	"time": d.getHours() + "." + d.getMinutes(),
         	"P": req.query.Power
         })
     });
@@ -1031,4 +1031,3 @@ app.get('/', function (req, res) {
     res.render('index', { title: 'Hey', message: 'Hello there!',info: a})
 });
 */
-
