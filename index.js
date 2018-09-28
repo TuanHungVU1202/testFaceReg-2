@@ -29,8 +29,8 @@ var basePathToImgDir = './public/images'
 
 
 //mongodb on mlab
-var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
-//var mongourl= 'mongodb://localhost:27017/myDatabase';
+//var mongourl= 'mongodb://admin:admin123@ds139942.mlab.com:39942/mongotest-1';
+var mongourl= 'mongodb://localhost:27017/myDatabase';
 var MongoClient = require('mongodb').MongoClient;
 
 
@@ -73,7 +73,7 @@ var monthFilter = monthNow;
 var yearFilter = yearNow;
 
 var chartTime = [];
-var chartPower = [];
+var chartPower = ['21', '11', '12', '02'];
 var chartCount = 0;
 //var chartTime2 = ["1:00","3:30","4:15","6:15","7:15","8:15"];
 
