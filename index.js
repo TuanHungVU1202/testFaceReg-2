@@ -380,7 +380,7 @@ app.get('/control', function (req, res) {
                     )
                 }
                 checkChangedFlag.changedFlagStatus = "true";
-                //res.redirect('/control');
+                res.redirect('/control');
             });
             app.post('/device2', function (req, res) {
                 deviceState.device2 = (deviceState.device2 === "on") ? "off" : "on";
@@ -397,10 +397,10 @@ app.get('/control', function (req, res) {
                     )
                 }
                 checkChangedFlag.changedFlagStatus = "true";
-                //res.redirect('/control');
+                res.redirect('/control');
             });
 
-            /* In
+            //Main door is Device 3
             app.post('/device3', function (req, res) {
                 deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
                 if (deviceState.device3 === "on") {
@@ -416,9 +416,9 @@ app.get('/control', function (req, res) {
                     )
                 }
                 checkChangedFlag.changedFlagStatus = "true";
-                //res.redirect('/control');
+                res.redirect('/control');
             });
-            */
+
 
             app.post('/device4', function (req, res) {
                 deviceState.device4 = (deviceState.device4 === "on") ? "off" : "on";
@@ -435,7 +435,7 @@ app.get('/control', function (req, res) {
                     )
                 }
                 checkChangedFlag.changedFlagStatus = "true";
-                //res.redirect('/control');
+                res.redirect('/control');
             });
         });
 
