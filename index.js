@@ -8,6 +8,10 @@ var express = require('express')		//add comment de test github update
 var app = express()                 //4th time test push
 var exphbs  = require('express-handlebars')
 
+//set up for mqtt client
+var mqtt = require('mqtt')
+var mqttClient = mqtt.connect ('mqtt://localhost:3000')
+
 //vars for handleImage pages
 var fs = require ('fs')
 var pathToImgArray = []
@@ -89,12 +93,12 @@ checkChangedFlag.changedFlagStatus = "false";
 
 //init states for devices
 var deviceState = {};
-/*
+
 deviceState.device1 = "off";
 deviceState.device2 = "off";
 deviceState.device3 = "off";
 deviceState.device4 = "off";
-*/
+
 deviceState.device1TimeOn = "00:00";
 deviceState.device1TimeOff = "00:00";
 deviceState.device2TimeOn = "00:00";
@@ -110,7 +114,6 @@ scenes.iAmHome = "off";
 scenes.goodmorning = "off";
 scenes.goodnight = "off";
 scenes.security = "off";
-
 
 
 app.get('/', function (req, res) {
@@ -156,6 +159,30 @@ app.post('/logincheckCamera', function(req,res){
 //set Interval for it to rerun after some times  <<======= TOO LAGGY
 //Restart server is a better solution
 loadImgDir();
+
+
+//setup functions for mqtt client
+mqttClient.on('connect', () => {
+    console.log('mqtt client connected')
+    mqttClient.subscribe('fromEsp/control/device/1', {qos: 0});
+    mqttClient.subscribe('fromEsp/control/device/2', {qos: 0});
+    mqttClient.subscribe('fromEsp/control/device/3', {qos: 0});
+    mqttClient.subscribe('fromEsp/control/device/4', {qos: 0});
+    mqttClient.subscribe('fromEsp/timer/device/1', {qos: 0});
+    mqttClient.subscribe('fromEsp/timer/device/2', {qos: 0});
+    mqttClient.subscribe('fromEsp/timer/device/3', {qos: 0});
+    mqttClient.subscribe('fromEsp/timer/device/4', {qos: 0});
+})
+
+//TODO: use this block to handle received message from ESP
+mqttClient.on('message', function(topic, message) {
+    var receivedMessage = message.toString()
+    console.log('Received mess from ESP: ', receivedMessage)
+})
+
+mqttClient.on('close', () => {
+    console.log('MQTT Client disconnected')
+})
 
 
 //then Get handleImage page
@@ -367,6 +394,9 @@ app.get('/control', function (req, res) {
             app.post('/device1', function (req, res) {
                 deviceState.device1 = (deviceState.device1 === "on") ? "off" : "on";
 
+                //newly added
+                mqttClient.publish('toEsp/control/device/1', deviceState.device1)
+
                 if (deviceState.device1 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.1"},
@@ -384,6 +414,7 @@ app.get('/control', function (req, res) {
             });
             app.post('/device2', function (req, res) {
                 deviceState.device2 = (deviceState.device2 === "on") ? "off" : "on";
+                mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 if (deviceState.device2 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.2"},
@@ -403,6 +434,7 @@ app.get('/control', function (req, res) {
             //Main door is Device 3
             app.post('/device3', function (req, res) {
                 deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
+                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
                 if (deviceState.device3 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.3", state: "off"},
@@ -422,6 +454,7 @@ app.get('/control', function (req, res) {
 
             app.post('/device4', function (req, res) {
                 deviceState.device4 = (deviceState.device4 === "on") ? "off" : "on";
+                mqttClient.publish('toEsp/control/device/4', deviceState.device4)
                 if (deviceState.device4 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.4"},
@@ -673,6 +706,7 @@ app.get('/camera', function (req, res) {
             // Post state of devices to control them
             app.post('/device3', function () {
                 deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
+                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
                 console.log(deviceState.device3);
                 if (deviceState.device3 === "on") {
                     floor1.updateMany(
