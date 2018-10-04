@@ -11,6 +11,8 @@ var exphbs  = require('express-handlebars')
 //set up for mqtt client
 var mqtt = require('mqtt')
 var mqttClient = mqtt.connect ('mqtt://localhost:3000')
+var receivedMessage
+var topicStr
 
 //vars for handleImage pages
 var fs = require ('fs')
@@ -172,17 +174,68 @@ mqttClient.on('connect', () => {
     mqttClient.subscribe('fromEsp/timer/device/2', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/3', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/4', {qos: 0});
+
+    //reserving for sensors topic
+    mqttClient.subscribe('fromEsp/sensor/temp', {qos: 0});
+    mqttClient.subscribe('fromEsp/sensor/humid', {qos: 0});
+    mqttClient.subscribe('fromEsp/sensor/pressure', {qos: 0});
 })
 
-//TODO: use this block to handle received message from ESP
 mqttClient.on('message', function(topic, message) {
-    var receivedMessage = message.toString()
-    console.log('Received mess from ESP: ', receivedMessage)
+    receivedMessage = message.toString()
+    topicStr = topic.toString()
+    loadStateFromSystem()
+    //console.log('Received Topic: ', topicStr)
+    //console.log('Received mess from ESP: ', receivedMessage)
 })
 
 mqttClient.on('close', () => {
     console.log('MQTT Client disconnected')
 })
+
+
+/*
+Read state SENT from System through INTERNET by nodeMCU. Then log deviceState to MongoDB
+ */
+function loadStateFromSystem () {
+    MongoClient.connect(mongourl, function (err, db) {
+        var floor1 = db.collection('floor1');
+
+        //Receive state from System by Internet
+        if (topicStr === 'fromEsp/control/device/1') {
+            deviceState.device1 = receivedMessage;
+            floor1.updateMany(
+                {"_id": "F1.1"},
+                {$set: {"_id": "F1.1", name: "Front Light", state: deviceState.device1}}, //use req.query to GET device state from NodeMCU
+                {upsert: true}
+            );
+        }
+        if (topicStr === 'fromEsp/control/device/2') {
+            deviceState.device2 = receivedMessage;
+            floor1.updateMany(
+                {"_id": "F1.2"},
+                {$set: {"_id": "F1.2", name: "Stair Light", state: deviceState.device2}},
+                {upsert: true}
+            );
+        }
+        if (topicStr === 'fromEsp/control/device/3') {
+            deviceState.device3 = receivedMessage;
+            floor1.updateMany(
+                {"_id": "F1.3"},
+                {$set: {"_id": "F1.3", name: "Main Door", state: deviceState.device3}},
+                {upsert: true}
+            );
+        }
+        if (topicStr === 'fromEsp/control/device/4') {
+            deviceState.device4 = receivedMessage;
+            floor1.updateMany(
+                {"_id": "F1.4"},
+                {$set: {"_id": "F1.4", name: "Power Tracker", state: deviceState.device4}},
+                {upsert: true}
+            );
+        }
+    });
+}
 
 
 //then Get handleImage page
@@ -549,7 +602,7 @@ app.get('/scenes', function (req, res) {
                 );
                 floor1.updateMany(
                     {"_id": "F1.2"},
-                    {$set: {state: "on"}}
+                    {$set: {state: "off"}}
                 );
                 floor1.updateMany(
                     {"_id": "F1.3"},
@@ -557,8 +610,11 @@ app.get('/scenes', function (req, res) {
                 );
                 //deviceState for updating button control in Control page
                 deviceState.device1 = "on";
-                deviceState.device2 = "on";
+                deviceState.device2 = "off";
                 deviceState.device3 = "off";
+                mqttClient.publish('toEsp/control/device/1', deviceState.device1)
+                mqttClient.publish('toEsp/control/device/2', deviceState.device2)
+                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
@@ -573,15 +629,18 @@ app.get('/scenes', function (req, res) {
                 );
                 floor1.updateMany(
                     {"_id": "F1.2"},
-                    {$set: {state: "on"}}
+                    {$set: {state: "off"}}
                 );
                 floor1.updateMany(
                     {"_id": "F1.3"},
                     {$set: {state: "on"}}
                 );
                 deviceState.device1 = "on";
-                deviceState.device2 = "on";
+                deviceState.device2 = "off";
                 deviceState.device3 = "on";
+                mqttClient.publish('toEsp/control/device/1', deviceState.device1)
+                mqttClient.publish('toEsp/control/device/2', deviceState.device2)
+                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
@@ -605,6 +664,9 @@ app.get('/scenes', function (req, res) {
                 deviceState.device1 = "off";
                 deviceState.device2 = "off";
                 deviceState.device3 = "off";
+                mqttClient.publish('toEsp/control/device/1', deviceState.device1)
+                mqttClient.publish('toEsp/control/device/2', deviceState.device2)
+                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
@@ -613,6 +675,25 @@ app.get('/scenes', function (req, res) {
                 scenes.goodmorning = "off";
                 scenes.iAmHome = "off";
                 scenes.goodnight = "off";
+                floor1.updateMany(
+                    {"_id": "F1.1"},
+                    {$set: {state: "off"}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.2"},
+                    {$set: {state: "on"}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.3"},
+                    {$set: {state: "off"}}
+                );
+                deviceState.device1 = "off";
+                deviceState.device2 = "on";
+                deviceState.device3 = "off";
+                mqttClient.publish('toEsp/control/device/1', deviceState.device1)
+                mqttClient.publish('toEsp/control/device/2', deviceState.device2)
+                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
             res.render('scenes', {
@@ -834,54 +915,6 @@ app.get('/chat', function(req, res){
         res.redirect('/');
 
 });
-
-
-
-/*
-Read state SENT from System through INTERNET by nodeMCU. Then log deviceState to MongoDB
-Problem maybe caused from here. LOOK here first if hardware does not interact with web app
-
- */
-app.get('/readStateFromSystem', function (req, res) {
-    MongoClient.connect(mongourl, function(err, db){
-        var floor1 = db.collection('floor1');
-
-        //Receive state from System by Internet
-    if(req.query.device1){
-        deviceState.device1 = req.query.device1;
-        floor1.updateMany(
-            {"_id": "F1.1"},
-            {$set: {"_id": "F1.1", name: "Front Light", state: req.query.device1}}, //use req.query to GET device state from NodeMCU
-            {upsert: true}
-            );
-    }
-    if(req.query.device2){
-        deviceState.device2 = req.query.device2;
-        floor1.updateMany(
-            {"_id": "F1.2"},
-            {$set: {"_id": "F1.2", name: "Stair Light", state: req.query.device2}},
-            {upsert: true}
-            );
-    }
-    if(req.query.device3){
-        deviceState.device3 = req.query.device3;
-        floor1.updateMany(
-            {"_id": "F1.3"},
-            {$set: {"_id": "F1.3", name: "Main Door", state: req.query.device3}},
-            {upsert: true}
-            );
-    }
-    if(req.query.device4){
-        deviceState.device4 = req.query.device4;
-        floor1.updateMany(
-            {"_id": "F1.4"},
-            {$set: {"_id": "F1.4", name: "Power Tracker", state: req.query.device4}},
-            {upsert: true}
-            );
-        }
-    });
-});
-
 
 /* Read value from system and return JSON page to client
 */
