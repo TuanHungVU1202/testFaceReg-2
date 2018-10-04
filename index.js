@@ -493,24 +493,32 @@ app.get('/control', function (req, res) {
 app.get('/submitTheTimeDevice1', function(req,res){
    deviceState.device1TimeOn = req.query.setTimeOn;
    deviceState.device1TimeOff = req.query.setTimeOff;
+   mqttClient.publish('toEsp/timer/device/1/on', req.query.setTimeOn)
+   mqttClient.publish('toEsp/timer/device/1/off', req.query.setTimeOff)
    checkChangedFlag.changedFlagStatus = "true";
    res.redirect('/control');
 });
 app.get('/submitTheTimeDevice2', function(req,res){
     deviceState.device2TimeOn = req.query.setTimeOn;
     deviceState.device2TimeOff = req.query.setTimeOff;
+    mqttClient.publish('toEsp/timer/device/2/on', req.query.setTimeOn)
+    mqttClient.publish('toEsp/timer/device/2/off', req.query.setTimeOff)
     checkChangedFlag.changedFlagStatus = "true";
     res.redirect('/control');
 });
 app.get('/submitTheTimeDevice3', function(req,res){
     deviceState.device3TimeOn = req.query.setTimeOn;
     deviceState.device3TimeOff = req.query.setTimeOff;
+    mqttClient.publish('toEsp/timer/device/3/on', req.query.setTimeOn)
+    mqttClient.publish('toEsp/timer/device/3/off', req.query.setTimeOff)
     checkChangedFlag.changedFlagStatus = "true";
     res.redirect('/control');
 });
 app.get('/submitTheTimeDevice4', function(req,res){
     deviceState.device4TimeOn = req.query.setTimeOn;
     deviceState.device4TimeOff = req.query.setTimeOff;
+    mqttClient.publish('toEsp/timer/device/4/on', req.query.setTimeOn)
+    mqttClient.publish('toEsp/timer/device/4/off', req.query.setTimeOff)
     checkChangedFlag.changedFlagStatus = "true";
     res.redirect('/control');
 });
