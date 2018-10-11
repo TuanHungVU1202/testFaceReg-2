@@ -781,6 +781,14 @@ app.get('/camera', function (req, res) {
             //read Data from DB at the beginning
             var receivedDataFromDB = imgData.distinct("Registered As")
 
+            //config to receive message from outsider requesting for onetime password
+            socketClient.on('connection', function(socket){
+                socket.on('getRandomPassword', function (randomPassword) {
+                    console.log('random ', randomPassword)
+                    socketClient.emit('randomPassword', randomPassword)
+                })
+            })
+
             //Check current device state from MongoDB to keep the website up to date
             //setInterval to run the inside function repeatedly with Interval = 10ms to keep website up-to-date as fast as possible
             setInterval(function () {
@@ -854,9 +862,9 @@ app.get('/outsider', function (req, res) {
 
         //setup socket io for welcome page
         socketClient.once('connection', function(socket){
-            socket.on('getMessageFromOutsider', function(data){
-                socketClient.emit('messageFromOutsider', data)
-            })
+                socket.on('getMessageFromOutsider', function (data) {
+                    socketClient.emit('messageFromOutsider', data)
+                })
         })
 
 
@@ -878,7 +886,7 @@ app.get('/outsider', function (req, res) {
             if (deviceState.device3 === "on") {
                 floor1.updateMany(
                     {"_id": "F1.3"},
-                    {$set: {state: "on"}}               //without $set mongoDB won't update state field
+                    {$set: {state: "on"}}
                 )
                 //checkChangedFlag.changedFlagStatus = "true";
             }

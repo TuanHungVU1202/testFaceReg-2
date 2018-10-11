@@ -228,19 +228,23 @@
                     }
                     if (notDetected.length === 6) {
                         globals.isUnknown = true;
+                        //closeDoor()
+                        // updateData()
+                        var registerCheck = confirm('The person is not yet registered. Do you want to provide him/her an one-time password to enter?\n1. If yes, click "OK"\n2. Otherwise, click Cancel!');
+
+                        if (registerCheck == true){
+                            confirm('Please click OK to send the password to the visitor');
+                            console.log('Start generating random password');
+                            var randomPassword = Math.random().toString(36).slice(-8);
+                            socket.emit('getRandomPassword', randomPassword)
+                            // console.log('random pass ', randomPassword)
+                            // showPopUp();
+                        } else {
+                            alert('Denied visitor');
+                        }
                         $.post('/logDetectedFace',
                                 {'faceDetectedTime': getDateTime(), 'detectedPerson': "Unknown"},
                         )
-                        //closeDoor()
-                        updateData()
-                        var registerCheck = confirm('You are not yet register to the system. Do you want to add your information to the Database?\n1. If yes, click "OK"\n2. Otherwise, click Cancel!');
-                        if (registerCheck == true){
-                            console.log('registered');
-                            confirm('Please enter Master password');
-                            showPopUp();
-                        } else {
-                            console.log('Not regist');
-                        }
                         //console.log('done');
                         //console.log('notDetected ' + globals.isUnknown);
                     }
@@ -306,7 +310,7 @@
 
     //4  functions handle Doors
     function openDoor(){
-        if(isPostOpenFlag == 0) {
+        if(isPostOpenFlag === 0) {
             $.ajax({
                 url: "/device3",
                 method: 'POST',
@@ -318,7 +322,7 @@
     }
 
     function closeDoor(){
-        if(isPostCloseFlag == 0) {
+        if(isPostCloseFlag === 0) {
             $.ajax({
                 url: "/device3",
                 method: 'POST',

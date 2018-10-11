@@ -41,10 +41,8 @@
             <button onclick="showPopUp()">Enter One-Time Password</button>
             <div id="popup">
                 <div>Enter One-Time Password:</div>
-                <form action = "/logincheckCamera", method = "post">
-                <input id="masterPass" type="password" name="masterPass"/>
+                <input id="oneTimePass" type="password" name="oneTimePass"/>
                 <button onclick="donePassWord()">Done</button>
-                </form>
             </div>
             <button id="closeDoorBtn">Close Door</button>
         </div>
@@ -54,7 +52,16 @@
 <!-- put this func after body to load it right after every content on page loaded -->
 <script>
     var isPostCloseFlag = 0
+    var isPostOpenFlag = 0
 
+    globals = {};
+    function globalVar(){
+        globals['isOTP'] = '';
+    }
+
+
+    //init functions run at the beginning
+    globalVar()
 
     // Connect to socket.io
     var socket= io.connect('http://127.0.0.1:1202');
@@ -69,9 +76,17 @@
             })
 
 
+    //receiving message from camera page
+    socket.on('randomPassword', function (randomPassword) {
+        globals.isOTP = randomPassword
+        console.log(globals.isOTP)
+        // console.log('random pass ', randomPassword)
+    })
+
+
     // functions handle Doors
     function openDoor(){
-        if(isPostOpenFlag == 0) {
+        if(isPostOpenFlag === 0) {
             $.ajax({
                 url: "/device3",
                 method: 'POST',
@@ -84,7 +99,7 @@
 
 
     function closeDoor(){
-        if(isPostCloseFlag == 0) {
+        if(isPostCloseFlag === 0) {
             $.ajax({
                 url: "/device3",
                 method: 'POST',
@@ -107,8 +122,11 @@
     //function handle password entered
     function donePassWord() {
         document.getElementById("popup").style.display = "none";
-        //var checkMasterPass = document.getElementById("masterPass").value;
-
+        var checkOneTimePass = document.getElementById("oneTimePass").value;
+        if(checkOneTimePass ===  globals.isOTP){
+            openDoor()
+            alert('Opening door.\nRemember to close door after entered')
+        }
         //DO STUFF WITH PASSWORD HERE
     }
 
