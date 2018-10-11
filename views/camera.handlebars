@@ -32,6 +32,8 @@
 </nav>
 
 <!-- put this before page inner (body) to load every scripts before body -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.dev.js"></script>
+
 <!-- for Face Recognition -->
 <script src="dist/face-api.js"></script>
 <script src="commonsForFaceApi.js"></script>
@@ -73,17 +75,18 @@
         </style>
         <h2> OUTDOOR SECURITY CAMERA</h2>
         <br>
-        <button onclick="run()" id="recogBtn">Start Face Recognition</button>
-        <!-- Handle Popup button "Enter Master Password"-->
-        <button onclick="showPopUp()">Enter Master Password</button>
-        <div id="popup">
-            <div>Enter Master Password:</div>
-            <form action = "/logincheckCamera", method = "post">
-            <input id="masterPass" type="password" name="masterPass"/>
-            <button onclick="donePassWord()">Done</button>
-            </form>
+        <div>
+            <!-- Handle Popup button "Enter Master Password"-->
+            <button onclick="showPopUp()">Enter Master Password</button>
+            <div id="popup">
+                <div>Enter Master Password:</div>
+                <form action = "/logincheckCamera", method = "post">
+                <input id="masterPass" type="password" name="masterPass"/>
+                <button onclick="donePassWord()">Done</button>
+                </form>
+            </div>
+            <button id="closeDoorBtn">Close Door</button>
         </div>
-
         <br>
         <br>
         <div class="col-xs-6 col-md-2">
@@ -98,6 +101,7 @@
 
             <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
             <canvas id="overlay"></canvas>
+        </div>
     </div>
 </div>
 
@@ -106,9 +110,12 @@
     const MODEL_URL = '/weights';
 
     let modelLoaded = false
-    let minFaceSize = 150                                //keep a safe distance from face to webcam. If not, overflow bug would appear sooner
+    let minFaceSize = 150
     let maxDistance = 0.6
     let minConfidence = 0.9                              //use this value insread of minFaceSize if using  ssdMobileNet
+
+    var isPostOpenFlag = 0
+    var isPostCloseFlag = 0
 
     globals = {};
     function globalVar(){
@@ -120,6 +127,15 @@
     //init functions run at the beginning
     globalVar()
     updateTrainingSet()
+
+    // Connect to socket.io
+    var socket= io.connect('http://127.0.0.1:1202');
+    //callback for received data
+    socket.on('messageFromOutsider', function (data) {
+        if(data === "Visitor(s) waiting!") {
+            location.reload()
+        }
+    })
 
 
     //receive Array from server side
@@ -133,11 +149,12 @@
         classes = receivedArray.slice();
     }
 
+
     //function after Video is played
     async function onPlay(videoEl) {
-        if (videoEl.paused || videoEl.ended || !modelLoaded || globals.isKnown === true || globals.isUnknown === true)
+        if (videoEl.paused || videoEl.ended || !modelLoaded || globals.isKnown === true || globals.isUnknown === true) {
             return false
-
+        }
         const {width, height} = faceapi.getMediaDimensions(videoEl)
         const canvas = $('#overlay').get(0)
         canvas.width = width
@@ -176,6 +193,7 @@
 
 
                 if ((bestMatch.distance < maxDistance) && (globals.isKnown === false) && (globals.isUnknown === false)) {
+                    globals.logName = bestMatch.className
                     for (let i= 0; i <max; i++) {
                         detected.push(bestMatch.className);
                         //console.log(detected);
@@ -184,17 +202,25 @@
                     if (detected.length === 5){
                         globals.isKnown = true;
                         openDoor()
+                        $.post('/logDetectedFace',
+                                {'faceDetectedTime': getDateTime(), 'detectedPerson': bestMatch.className},
+                        )
                         updateData()
+
+                        /*
                         setTimeout(function () {
                             closeDoor()
-                            //console.log('done close in OpenDoor');
+                            $.post('/logDetectedFace',
+                                    {'faceDetectedTime': getDateTime(), 'detectedPerson': bestMatch.className},
+                            )
                             updateData()
                         }, 10000)
-                        //console.log('DONE OWNER');
+                        */
                         //console.log(globals.isKnown);
                     }
                 }
                 if ((bestMatch.distance >= maxDistance) && (globals.isUnknown === false) && (globals.isKnown === false)) {
+                    // globals.logName = "Unknown"
                     for (let i = 0; i <= max; i++) {
                         notDetected.push('unknown');
                         //console.log(notDetected);
@@ -202,6 +228,9 @@
                     }
                     if (notDetected.length === 6) {
                         globals.isUnknown = true;
+                        $.post('/logDetectedFace',
+                                {'faceDetectedTime': getDateTime(), 'detectedPerson': "Unknown"},
+                        )
                         //closeDoor()
                         updateData()
                         var registerCheck = confirm('You are not yet register to the system. Do you want to add your information to the Database?\n1. If yes, click "OK"\n2. Otherwise, click Cancel!');
@@ -252,7 +281,7 @@
 
     //make sure page is fully loaded
     $(document).ready(function() {
-        //run()
+        run()
     })
 
 
@@ -277,23 +306,27 @@
 
     //4  functions handle Doors
     function openDoor(){
-        $.ajax({
-            url: "/device3",
-            method: 'POST',
-            dataType: 'JSON',
-            success: handleOpen
-        })
-
+        if(isPostOpenFlag == 0) {
+            $.ajax({
+                url: "/device3",
+                method: 'POST',
+                dataType: 'JSON',
+                success: handleOpen
+            })
+            isPostOpenFlag = 1
+        }
     }
 
     function closeDoor(){
-        $.ajax({
-            url: "/device3",
-            method: 'POST',
-            dataType: 'JSON',
-            success: handleClose
-        })
-
+        if(isPostCloseFlag == 0) {
+            $.ajax({
+                url: "/device3",
+                method: 'POST',
+                dataType: 'JSON',
+                success: handleClose
+            })
+            isPostCloseFlag = 1
+        }
     }
 
     function handleOpen(result){
@@ -315,6 +348,41 @@
 
     function showPopUp() {
         document.getElementById("popup").style.display = "block";
+    }
+
+
+    //handle closeDoorBtn event
+    $("#closeDoorBtn").click(function(){
+        closeDoor()
+        $.post('/logDetectedFace',
+                {'faceDetectedTime': getDateTime(),},
+        )
+        updateData()
+    })
+
+
+    //https://stackoverflow.com/questions/7357734/how-do-i-get-the-time-of-day-in-javascript-node-js
+    function getDateTime() {
+        var date = new Date();
+
+        var hour = date.getHours();
+        hour = (hour < 10 ? "0" : "") + hour;
+
+        var min  = date.getMinutes();
+        min = (min < 10 ? "0" : "") + min;
+
+        var sec  = date.getSeconds();
+        sec = (sec < 10 ? "0" : "") + sec;
+
+        var year = date.getFullYear();
+
+        var month = date.getMonth() + 1;
+        month = (month < 10 ? "0" : "") + month;
+
+        var day  = date.getDate();
+        day = (day < 10 ? "0" : "") + day;
+
+        return "Y" + year + "M" + month + "D" + day + " Time " + hour + ":" + min + ":" + sec;
     }
 </script>
 

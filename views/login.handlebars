@@ -4,32 +4,15 @@
         <ul class="nav" id="main-menu">
 
             <li>
-                <a href="login"><i class="fa fa-dashboard"></i> Dashboard</a>
-            </li>
-            <li>
-                <a href="login"><i class="fa fa-list-alt"></i> Control</a>
-            </li>
-            <li>
-                <a href="login"><i class="fa fa-picture-o"></i> Scenes</a>
-            </li>
-            <li>
-                <a href="login"><i class="fa fa-bar-chart-o"></i> Charts</a>
-            </li>
-            <li>
-                <a href="camera"><i class="fa fa-camera"></i> Outdoor Camera</a>
-            </li>
-            <li>
-                <a href="login"><i class="fa fa-video-camera"></i> Indoor Camera</a>
-            </li>
-            <li>
-                <a href="login"><i class="fa fa-edit"></i> Chat </a>
-            </li>
-            <li>
-                <a href="login"><i class="fa fa-fw fa-map-marker"></i> Member Tracker</a>
+                <a href="outsider"><i class="fa fa-hand-o-right"></i> Welcome page for Visitors</a>
             </li>
         </ul>
     </div>
 </nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.dev.js"></script>
+
+
 <!-- /. PAGE WRAPPER  --> 
 <div id="page-wrapper" >
     <div id="page-inner" >
@@ -58,3 +41,14 @@
             </div>
     </div>    
 </div>
+
+<script>
+    // Connect to socket.io
+    var socket= io.connect('http://127.0.0.1:1202');
+    //callback for received data
+    socket.on('messageFromOutsider', function (data) {
+        if(data === "Visitor(s) waiting!") {
+            alert(data)
+        }
+    })
+</script>

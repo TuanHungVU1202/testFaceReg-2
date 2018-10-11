@@ -101,6 +101,16 @@
         // Connect to socket.io
         var socket= io.connect('http://127.0.0.1:1202');
 
+        //callback for received data
+        socket.on('messageFromOutsider', function (data) {
+            if(data === "Visitor(s) waiting!") {
+                alert(data + "Click OK to view the visitors")
+                var url = "http://localhost:2111/camera";
+                $("<a>").attr("href", url).attr("target", "_blank")[0].click();
+            }
+        })
+
+
         // Check for connection
         if(socket !== undefined){
             console.log('connected');

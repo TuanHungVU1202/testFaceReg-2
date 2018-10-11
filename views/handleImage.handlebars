@@ -296,7 +296,7 @@
             var onlyData = tempImgData.replace(/^data:image\/(png|gif|jpeg);base64,/, '');
             //console.log('result '+ onlyData);
 
-            //use 'imgStr' to post "string" data to nodejs
+            //use 'imgStr' to post "string" data to server-side
             $.post('./imageData',
                     {'imgStr': onlyData, 'className': personName},
                     function (result) {

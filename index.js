@@ -41,7 +41,7 @@ var MongoClient = require('mongodb').MongoClient;
 
 
 //setup socket.io
-const client = require('socket.io').listen(1202).sockets;
+const socketClient = require('socket.io').listen(1202).sockets;
 
 //setup views
 const path = require('path');
@@ -770,12 +770,14 @@ app.get('/filterPower', function (req, res) {
 
 //Outdoor CAMERA
 app.get('/camera', function (req, res) {
-    //if(loginFlag === true){
+    if(loginFlag === true){
         MongoClient.connect(mongourl, function (err, db) {
             //config devices for floor1
             var floor1 = db.collection('floor1');
             //config imgData DB to load imgData from DB
             var imgData = db.collection('imgData')
+            //config collection to log time faces are detected
+            var logFaceDetection = db.collection('logFaceDetection')
             //read Data from DB at the beginning
             var receivedDataFromDB = imgData.distinct("Registered As")
 
@@ -812,7 +814,20 @@ app.get('/camera', function (req, res) {
                     )
                 }
                 checkChangedFlag.changedFlagStatus = "true";
+                // res.redirect('/camera')
             });
+
+            //handle post data of log face detected time
+            app.post('/logDetectedFace', function (req, res) {
+                var detectedTime = req.body.faceDetectedTime
+                var detectedPerson = req.body.detectedPerson
+                // var openTime = req.body.openTime
+                // var closeTime = req.body.closeTime
+                console.log(detectedTime)
+                console.log(detectedPerson)
+                // console.log('open at ', openTime)
+                // console.log('close at ',closeTime)
+            })
 
             receivedDataFromDB.then(function (existedPeople) {
                 //console.log("kq la: ", existedPeople);
@@ -823,11 +838,79 @@ app.get('/camera', function (req, res) {
                 })
             })
         });
-    //}
-    //else
-    //    res.redirect('/');
+    }
+    else
+    res.redirect('/');
 });
 
+
+//Welcome page for visitors
+app.get('/outsider', function (req, res) {
+    MongoClient.connect(mongourl, function (err, db) {
+        //config devices for floor1
+        var floor1 = db.collection('floor1');
+        //config collection to log time faces are detected
+        var logFaceDetection = db.collection('logFaceDetection')
+
+        //setup socket io for welcome page
+        socketClient.once('connection', function(socket){
+            socket.on('getMessageFromOutsider', function(data){
+                socketClient.emit('messageFromOutsider', data)
+            })
+        })
+
+
+        setInterval(function () {
+            var cursor3 = floor1.find(
+                {_id: {$eq:"F1.3"}}
+            );
+            cursor3.forEach(
+                function (doc) {
+                    deviceState.device3 = doc.state;
+                }
+            );
+        },0);       //0 ms
+
+        app.post('/device3', function () {
+            deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
+            mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+            console.log(deviceState.device3);
+            if (deviceState.device3 === "on") {
+                floor1.updateMany(
+                    {"_id": "F1.3"},
+                    {$set: {state: "on"}}               //without $set mongoDB won't update state field
+                )
+                //checkChangedFlag.changedFlagStatus = "true";
+            }
+            else
+            if (deviceState.device3 === "off"){
+                floor1.updateMany(
+                    {"_id": "F1.3"},
+                    {$set: {state: "off"}},
+                )
+            }
+            checkChangedFlag.changedFlagStatus = "true";
+            // res.redirect('/camera')
+        });
+
+        //handle post data of log face detected time
+        app.post('/logDetectedFace', function (req, res) {
+            var detectedTime = req.body.faceDetectedTime
+            var detectedPerson = req.body.detectedPerson
+            // var openTime = req.body.openTime
+            // var closeTime = req.body.closeTime
+            console.log(detectedTime)
+            console.log(detectedPerson)
+            // console.log('open at ', openTime)
+            // console.log('close at ',closeTime)
+        })
+            res.render('outsider', {
+                device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
+                device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
+            })
+
+    });
+});
 
 //Indoor CAMERA
 app.get('/motion', function (req, res) {
@@ -858,7 +941,7 @@ app.get('/chat', function(req, res){
             //res.render('chat');
             //var chats = db.collection('chats');
             //connect to socket.io. USE client.ONCE to avoid duplicate message on client site
-            client.once('connection', function(socket){
+            socketClient.once('connection', function(socket){
                 //socket.removeAllListeners();
                 var chats = db.collection('chats');
 
@@ -888,7 +971,7 @@ app.get('/chat', function(req, res){
                     else{
                         //insert message to mongodb or so called : send message
                         chats.insert({name: name, message: message}, function () {
-                            client.emit('output', [data]);
+                            socketClient.emit('output', [data]);
 
                             //send status back
                             sendStatus({
