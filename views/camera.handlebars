@@ -204,11 +204,13 @@
                         openDoor()
                         updateData()
                         $.post('/logDeviceActivities',
-                                {'onD3Date': myTodayDate().myDate,
-                                    'onD3Day': myTodayDate().myDay,
-                                    'onD3Month': myTodayDate().myMonth,
-                                    'onD3Year': myTodayDate().year,
-                                    'onD3Time': getTime(),
+                                {   'deviceId': 'F1.3',
+                                    'logState': 'on',
+                                    'Date': myTodayDate().myDate,
+                                    'Day': myTodayDate().myDay,
+                                    'Month': myTodayDate().myMonth,
+                                    'Year': myTodayDate().year,
+                                    'Time': getTime(),
                                 },
                         )
                         $.post('/logDetectedFace',
@@ -217,7 +219,9 @@
                                     'detectMonth': myTodayDate().myMonth,
                                     'detectYear': myTodayDate().year,
                                     'detectTime': getTime(),
-                                 'detectPerson': bestMatch.className},
+                                 'detectPerson': bestMatch.className,
+                                    'permission': 'allowed'
+                                },
                         )
 
                         /*
@@ -248,21 +252,33 @@
                         if (registerCheck == true){
                             confirm('Please click OK to send the password to the visitor');
                             console.log('Start generating random password');
-                            var randomPassword = Math.random().toString(36).slice(-8);
+                            var randomPassword = Math.random().toString(36).substr(2, 4);
                             socket.emit('getRandomPassword', randomPassword)
+                            $.post('/logDetectedFace',
+                                    {   'detectTime': getTime(),
+                                        'detectDate': myTodayDate().myDate,
+                                        'detectDay': myTodayDate().myDay,
+                                        'detectMonth': myTodayDate().myMonth,
+                                        'detectYear': myTodayDate().year,
+                                        'detectPerson': 'Unknown',
+                                        'permission': 'allowed'
+                                    },
+                            )
                             // console.log('random pass ', randomPassword)
                             // showPopUp();
                         } else {
                             alert('Denied visitor');
+                            $.post('/logDetectedFace',
+                                    {   'detectTime': getTime(),
+                                        'detectDate': myTodayDate().myDate,
+                                        'detectDay': myTodayDate().myDay,
+                                        'detectMonth': myTodayDate().myMonth,
+                                        'detectYear': myTodayDate().year,
+                                        'detectPerson': 'Unknown',
+                                        'permission': 'denied'
+                                    },
+                            )
                         }
-                        $.post('/logDetectedFace',
-                                {'detectDate': myTodayDate().myDate,
-                                    'detectDay': myTodayDate().myDay,
-                                    'detectMonth': myTodayDate().myMonth,
-                                    'detectYear': myTodayDate().year,
-                                    'detectTime': getTime(),
-                                    'detectPerson': 'Unknown'},
-                        )
                         //console.log('done');
                         //console.log('notDetected ' + globals.isUnknown);
                     }
@@ -378,11 +394,13 @@
         closeDoor()
         updateData()
         $.post('/logDeviceActivities',
-                {   'offD3Date': myTodayDate().myDate,
-                    'offD3Day': myTodayDate().myDay,
-                    'offD3Month': myTodayDate().myMonth,
-                    'offD3Year': myTodayDate().year,
-                    'offD3Time': getTime(),
+                {   'deviceId': 'F1.3',
+                    'logState': 'off',
+                    'Date': myTodayDate().myDate,
+                    'Day': myTodayDate().myDay,
+                    'Month': myTodayDate().myMonth,
+                    'Year': myTodayDate().year,
+                    'Time': getTime(),
                 },
         )
     })

@@ -206,7 +206,7 @@ function loadStateFromSystem () {
             deviceState.device1 = receivedMessage;
             floor1.updateMany(
                 {"_id": "F1.1"},
-                {$set: {"_id": "F1.1", name: "Front Light", state: deviceState.device1}}, //use req.query to GET device state from NodeMCU
+                {$set: {"_id": "F1.1", name: "Front Light", state: deviceState.device1}},
                 {upsert: true}
             );
         }
@@ -405,6 +405,8 @@ app.get('/control', function (req, res) {
         MongoClient.connect(mongourl, function (err, db) {
             //config devices for floor1
             var floor1 = db.collection('floor1');
+            //config collection to log device on/off time
+            var logDeviceActivities = db.collection('logDeviceActivities')
 
             //Check current device state from MongoDB to keep the website up to date
             //setInterval to run the inside function repeatedly with Interval = 10ms to keep website up-to-date as fast as possible
@@ -449,6 +451,16 @@ app.get('/control', function (req, res) {
 
                 //newly added
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
+                //log data into Mongodb
+                logDeviceActivities.insertOne({
+                    "deviceId": "F1.1",
+                    "state": deviceState.device1,
+                    "Timestamp": getTime(),
+                    "Day": myTodayDate().myDay,
+                    "Date": myTodayDate().myDate,
+                    "Month": myTodayDate().myMonth,
+                    "Year": myTodayDate().year,
+                })
 
                 if (deviceState.device1 === "on") {
                     floor1.updateMany(
@@ -468,6 +480,17 @@ app.get('/control', function (req, res) {
             app.post('/device2', function (req, res) {
                 deviceState.device2 = (deviceState.device2 === "on") ? "off" : "on";
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
+
+                logDeviceActivities.insertOne({
+                    "deviceId": "F1.2",
+                    "state": deviceState.device2,
+                    "Timestamp": getTime(),
+                    "Day": myTodayDate().myDay,
+                    "Date": myTodayDate().myDate,
+                    "Month": myTodayDate().myMonth,
+                    "Year": myTodayDate().year,
+                })
+
                 if (deviceState.device2 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.2"},
@@ -488,6 +511,17 @@ app.get('/control', function (req, res) {
             app.post('/device3', function (req, res) {
                 deviceState.device3 = (deviceState.device3 === "on") ? "off" : "on";
                 mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+
+                logDeviceActivities.insertOne({
+                    "deviceId": "F1.3",
+                    "state": deviceState.device3,
+                    "Timestamp": getTime(),
+                    "Day": myTodayDate().myDay,
+                    "Date": myTodayDate().myDate,
+                    "Month": myTodayDate().myMonth,
+                    "Year": myTodayDate().year,
+                })
+
                 if (deviceState.device3 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.3", state: "off"},
@@ -508,6 +542,17 @@ app.get('/control', function (req, res) {
             app.post('/device4', function (req, res) {
                 deviceState.device4 = (deviceState.device4 === "on") ? "off" : "on";
                 mqttClient.publish('toEsp/control/device/4', deviceState.device4)
+
+                logDeviceActivities.insertOne({
+                    "deviceId": "F1.4",
+                    "state": deviceState.device4,
+                    "Timestamp": getTime(),
+                    "Day": myTodayDate().myDay,
+                    "Date": myTodayDate().myDate,
+                    "Month": myTodayDate().myMonth,
+                    "Year": myTodayDate().year,
+                })
+
                 if (deviceState.device4 === "on") {
                     floor1.updateMany(
                         {"_id": "F1.4"},
@@ -587,6 +632,8 @@ app.get('/scenes', function (req, res) {
         MongoClient.connect(mongourl, function (err, db) {
             //config devices for floor1
             var floor1 = db.collection('floor1');
+            //config collection to log device on/off time
+            var logDeviceActivities = db.collection('logDeviceActivities')
 
             //Gui scenes
             app.post('/goodmorning', function (req, res) {
@@ -615,6 +662,35 @@ app.get('/scenes', function (req, res) {
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                logDeviceActivities.insertMany([
+                    {
+                        "deviceId": "F1.1",
+                        "state": deviceState.device1,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.2",
+                        "state": deviceState.device2,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.3",
+                        "state": deviceState.device3,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                ])
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
@@ -641,6 +717,35 @@ app.get('/scenes', function (req, res) {
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                logDeviceActivities.insertMany([
+                    {
+                        "deviceId": "F1.1",
+                        "state": deviceState.device1,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.2",
+                        "state": deviceState.device2,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.3",
+                        "state": deviceState.device3,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                ])
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
@@ -667,6 +772,35 @@ app.get('/scenes', function (req, res) {
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                logDeviceActivities.insertMany([
+                    {
+                        "deviceId": "F1.1",
+                        "state": deviceState.device1,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.2",
+                        "state": deviceState.device2,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.3",
+                        "state": deviceState.device3,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                ])
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
@@ -693,6 +827,35 @@ app.get('/scenes', function (req, res) {
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                logDeviceActivities.insertMany([
+                    {
+                        "deviceId": "F1.1",
+                        "state": deviceState.device1,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.2",
+                        "state": deviceState.device2,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.3",
+                        "state": deviceState.device3,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                ])
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/scenes');
             });
@@ -778,6 +941,8 @@ app.get('/camera', function (req, res) {
             var imgData = db.collection('imgData')
             //config collection to log time faces are detected
             var logFaceDetection = db.collection('logFaceDetection')
+            //config collection to log device on/off time
+            var logDeviceActivities = db.collection('logDeviceActivities')
             //read Data from DB at the beginning
             var receivedDataFromDB = imgData.distinct("Registered As")
 
@@ -790,7 +955,6 @@ app.get('/camera', function (req, res) {
             })
 
             //Check current device state from MongoDB to keep the website up to date
-            //setInterval to run the inside function repeatedly with Interval = 10ms to keep website up-to-date as fast as possible
             setInterval(function () {
                 var cursor3 = floor1.find(
                     {_id: {$eq:"F1.3"}}
@@ -800,7 +964,7 @@ app.get('/camera', function (req, res) {
                         deviceState.device3 = doc.state;
                     }
                 );
-            },0);       //0 ms
+            },0);
 
             // Post state of devices to control them
             app.post('/device3', function () {
@@ -828,48 +992,46 @@ app.get('/camera', function (req, res) {
 
             //handle post data of log face detected time
             app.post('/logDetectedFace', function (req, res) {
+                var detectTime = req.body.detectTime
                 var detectDate = req.body.detectDate
                 var detectDay = req.body.detectDay
                 var detectMonth = req.body.detectMonth
                 var detectYear = req.body.detectYear
                 var detectPerson = req.body.detectPerson
-                // console.log(detectDate)
-                // console.log(detectDay)
-                // console.log(detectMonth)
-                // console.log(detectYear)
-                // console.log(detectPerson)
+                var permission = req.body.permission
+
+                logFaceDetection.insertOne({
+                        "Person": detectPerson,
+                        "Timestamp": detectTime,
+                        "Day": detectDay,
+                        "Date": detectDate,
+                        "Month": detectMonth,
+                        "Year": detectYear,
+                        "Permission": permission,
+                })
             })
 
 
             //handle post data of log face detected time
             app.post('/logDeviceActivities', function (req, res) {
                 //log ON details
-                var onD3Date = req.body.onD3Date
-                var onD3Day = req.body.onD3Day
-                var onD3Month = req.body.onD3Month
-                var onD3Year = req.body.onD3Year
-                var onD3Time = req.body.onD3Time
+                var date = req.body.Date
+                var day = req.body.Day
+                var month = req.body.Month
+                var year = req.body.Year
+                var time = req.body.Time
+                var deviceId = req.body.deviceId
+                var logState = req.body.logState
 
-                //Log Off details
-                var offD3Date = req.body.offD3Date
-                var offD3Day = req.body.offD3Day
-                var offD3Month = req.body.offD3Month
-                var offD3Year = req.body.offD3Year
-                var offD3Time = req.body.offD3Time
-
-                console.log('start ON', onD3Date)
-                console.log(onD3Day)
-                console.log(onD3Month)
-                console.log(onD3Year)
-                console.log(onD3Time)
-
-                console.log('start OFF', offD3Date)
-                console.log(offD3Day)
-                console.log(offD3Month)
-                console.log(offD3Year)
-                console.log(offD3Time)
-
-
+                logDeviceActivities.insertOne({
+                    "deviceId": deviceId,
+                    "state": logState,
+                    "Timestamp": time,
+                    "Day": day,
+                    "Date": date,
+                    "Month": month,
+                    "Year": year,
+                })
             })
 
             receivedDataFromDB.then(function (existedPeople) {
@@ -892,8 +1054,8 @@ app.get('/outsider', function (req, res) {
     MongoClient.connect(mongourl, function (err, db) {
         //config devices for floor1
         var floor1 = db.collection('floor1');
-        //config collection to log time faces are detected
-        var logFaceDetection = db.collection('logFaceDetection')
+        //config collection to log device on/off time
+        var logDeviceActivities = db.collection('logDeviceActivities')
 
         //setup socket io for welcome page
         socketClient.once('connection', function(socket){
@@ -936,17 +1098,27 @@ app.get('/outsider', function (req, res) {
             // res.redirect('/camera')
         });
 
-        // //handle post data of log face detected time
-        // app.post('/logDetectedFace', function (req, res) {
-        //     var detectedTime = req.body.faceDetectedTime
-        //     var detectedPerson = req.body.detectedPerson
-        //     // var openTime = req.body.openTime
-        //     // var closeTime = req.body.closeTime
-        //     console.log(detectedTime)
-        //     console.log(detectedPerson)
-        //     // console.log('open at ', openTime)
-        //     // console.log('close at ',closeTime)
-        // })
+        //handle post data of log face detected time
+        app.post('/logDeviceActivities', function (req, res) {
+            //log ON details
+            var date = req.body.Date
+            var day = req.body.Day
+            var month = req.body.Month
+            var year = req.body.Year
+            var time = req.body.Time
+            var deviceId = req.body.deviceId
+            var logState = req.body.logState
+
+            logDeviceActivities.insertOne({
+                "deviceId": deviceId,
+                "state": logState,
+                "Timestamp": time,
+                "Day": day,
+                "Date": date,
+                "Month": month,
+                "Year": year,
+            })
+        })
             res.render('outsider', {
                 device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
                 device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
@@ -1108,6 +1280,36 @@ app.get('/checkChangedFlag', function(req,res){
     }
     res.end(JSON.stringify(checkChangedFlag));
 });
+
+
+function getTime() {
+    var date = new Date();
+
+    var hour = date.getHours();
+    hour = (hour < 10 ? "0" : "") + hour;
+
+    var min  = date.getMinutes();
+    min = (min < 10 ? "0" : "") + min;
+
+    var sec  = date.getSeconds();
+    sec = (sec < 10 ? "0" : "") + sec;
+
+    return hour + ":" + min + ":" + sec;
+}
+
+function myTodayDate(){
+    var today = new Date();
+    var day = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    var month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    var myTodayObj =
+        {
+            myDate : today.getDate(),
+            myDay : day[today.getDay()],
+            myMonth : month[today.getMonth()],
+            year : today.getFullYear()
+        }
+    return myTodayObj;
+}
 
 
 var t1 = performance.now();

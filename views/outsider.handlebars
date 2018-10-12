@@ -126,6 +126,16 @@
         var checkOneTimePass = document.getElementById("oneTimePass").value;
         if(checkOneTimePass ===  globals.isOTP){
             openDoor()
+            $.post('/logDeviceActivities',
+                    {   'deviceId': 'F1.3',
+                        'logState': 'on',
+                        'Date': myTodayDate().myDate,
+                        'Day': myTodayDate().myDay,
+                        'Month': myTodayDate().myMonth,
+                        'Year': myTodayDate().year,
+                        'Time': getTime(),
+                    },
+            )
             alert('Opening door.\nRemember to close door after entered')
         }
         //DO STUFF WITH PASSWORD HERE
@@ -139,13 +149,14 @@
     //handle closeDoorBtn event
     $("#closeDoorBtn").click(function(){
         closeDoor()
-        updateData()
         $.post('/logDeviceActivities',
-                {   'offD3Date': myTodayDate().myDate,
-                    'offD3Day': myTodayDate().myDay,
-                    'offD3Month': myTodayDate().myMonth,
-                    'offD3Year': myTodayDate().year,
-                    'offD3Time': getTime(),
+                {   'deviceId': 'F1.3',
+                    'logState': 'off',
+                    'Date': myTodayDate().myDate,
+                    'Day': myTodayDate().myDay,
+                    'Month': myTodayDate().myMonth,
+                    'Year': myTodayDate().year,
+                    'Time': getTime(),
                 },
         )
     })
