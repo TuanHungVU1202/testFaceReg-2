@@ -825,16 +825,51 @@ app.get('/camera', function (req, res) {
                 // res.redirect('/camera')
             });
 
+
             //handle post data of log face detected time
             app.post('/logDetectedFace', function (req, res) {
-                var detectedTime = req.body.faceDetectedTime
-                var detectedPerson = req.body.detectedPerson
-                // var openTime = req.body.openTime
-                // var closeTime = req.body.closeTime
-                console.log(detectedTime)
-                console.log(detectedPerson)
-                // console.log('open at ', openTime)
-                // console.log('close at ',closeTime)
+                var detectDate = req.body.detectDate
+                var detectDay = req.body.detectDay
+                var detectMonth = req.body.detectMonth
+                var detectYear = req.body.detectYear
+                var detectPerson = req.body.detectPerson
+                // console.log(detectDate)
+                // console.log(detectDay)
+                // console.log(detectMonth)
+                // console.log(detectYear)
+                // console.log(detectPerson)
+            })
+
+
+            //handle post data of log face detected time
+            app.post('/logDeviceActivities', function (req, res) {
+                //log ON details
+                var onD3Date = req.body.onD3Date
+                var onD3Day = req.body.onD3Day
+                var onD3Month = req.body.onD3Month
+                var onD3Year = req.body.onD3Year
+                var onD3Time = req.body.onD3Time
+
+                //Log Off details
+                var offD3Date = req.body.offD3Date
+                var offD3Day = req.body.offD3Day
+                var offD3Month = req.body.offD3Month
+                var offD3Year = req.body.offD3Year
+                var offD3Time = req.body.offD3Time
+
+                console.log('start ON', onD3Date)
+                console.log(onD3Day)
+                console.log(onD3Month)
+                console.log(onD3Year)
+                console.log(onD3Time)
+
+                console.log('start OFF', offD3Date)
+                console.log(offD3Day)
+                console.log(offD3Month)
+                console.log(offD3Year)
+                console.log(offD3Time)
+
+
             })
 
             receivedDataFromDB.then(function (existedPeople) {
@@ -901,17 +936,17 @@ app.get('/outsider', function (req, res) {
             // res.redirect('/camera')
         });
 
-        //handle post data of log face detected time
-        app.post('/logDetectedFace', function (req, res) {
-            var detectedTime = req.body.faceDetectedTime
-            var detectedPerson = req.body.detectedPerson
-            // var openTime = req.body.openTime
-            // var closeTime = req.body.closeTime
-            console.log(detectedTime)
-            console.log(detectedPerson)
-            // console.log('open at ', openTime)
-            // console.log('close at ',closeTime)
-        })
+        // //handle post data of log face detected time
+        // app.post('/logDetectedFace', function (req, res) {
+        //     var detectedTime = req.body.faceDetectedTime
+        //     var detectedPerson = req.body.detectedPerson
+        //     // var openTime = req.body.openTime
+        //     // var closeTime = req.body.closeTime
+        //     console.log(detectedTime)
+        //     console.log(detectedPerson)
+        //     // console.log('open at ', openTime)
+        //     // console.log('close at ',closeTime)
+        // })
             res.render('outsider', {
                 device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
                 device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",

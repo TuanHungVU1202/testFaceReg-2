@@ -202,10 +202,23 @@
                     if (detected.length === 5){
                         globals.isKnown = true;
                         openDoor()
-                        $.post('/logDetectedFace',
-                                {'faceDetectedTime': getDateTime(), 'detectedPerson': bestMatch.className},
-                        )
                         updateData()
+                        $.post('/logDeviceActivities',
+                                {'onD3Date': myTodayDate().myDate,
+                                    'onD3Day': myTodayDate().myDay,
+                                    'onD3Month': myTodayDate().myMonth,
+                                    'onD3Year': myTodayDate().year,
+                                    'onD3Time': getTime(),
+                                },
+                        )
+                        $.post('/logDetectedFace',
+                                {'detectDate': myTodayDate().myDate,
+                                    'detectDay': myTodayDate().myDay,
+                                    'detectMonth': myTodayDate().myMonth,
+                                    'detectYear': myTodayDate().year,
+                                    'detectTime': getTime(),
+                                 'detectPerson': bestMatch.className},
+                        )
 
                         /*
                         setTimeout(function () {
@@ -243,7 +256,12 @@
                             alert('Denied visitor');
                         }
                         $.post('/logDetectedFace',
-                                {'faceDetectedTime': getDateTime(), 'detectedPerson': "Unknown"},
+                                {'detectDate': myTodayDate().myDate,
+                                    'detectDay': myTodayDate().myDay,
+                                    'detectMonth': myTodayDate().myMonth,
+                                    'detectYear': myTodayDate().year,
+                                    'detectTime': getTime(),
+                                    'detectPerson': 'Unknown'},
                         )
                         //console.log('done');
                         //console.log('notDetected ' + globals.isUnknown);
@@ -358,15 +376,20 @@
     //handle closeDoorBtn event
     $("#closeDoorBtn").click(function(){
         closeDoor()
-        $.post('/logDetectedFace',
-                {'faceDetectedTime': getDateTime(),},
-        )
         updateData()
+        $.post('/logDeviceActivities',
+                {   'offD3Date': myTodayDate().myDate,
+                    'offD3Day': myTodayDate().myDay,
+                    'offD3Month': myTodayDate().myMonth,
+                    'offD3Year': myTodayDate().year,
+                    'offD3Time': getTime(),
+                },
+        )
     })
 
 
     //https://stackoverflow.com/questions/7357734/how-do-i-get-the-time-of-day-in-javascript-node-js
-    function getDateTime() {
+    function getTime() {
         var date = new Date();
 
         var hour = date.getHours();
@@ -378,15 +401,29 @@
         var sec  = date.getSeconds();
         sec = (sec < 10 ? "0" : "") + sec;
 
-        var year = date.getFullYear();
+        // var year = date.getFullYear();
+        //
+        // var month = date.getMonth() + 1;
+        // month = (month < 10 ? "0" : "") + month;
+        //
+        // var day  = date.getDate();
+        // day = (day < 10 ? "0" : "") + day;
 
-        var month = date.getMonth() + 1;
-        month = (month < 10 ? "0" : "") + month;
+        return hour + ":" + min + ":" + sec;
+    }
 
-        var day  = date.getDate();
-        day = (day < 10 ? "0" : "") + day;
-
-        return "Y" + year + "M" + month + "D" + day + " Time " + hour + ":" + min + ":" + sec;
+    function myTodayDate(){
+        var today = new Date();
+        var day = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        var month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        var myTodayObj =
+                {
+                    myDate : today.getDate(),
+                    myDay : day[today.getDay()],
+                    myMonth : month[today.getMonth()],
+                    year : today.getFullYear()
+                }
+        return myTodayObj;
     }
 </script>
 
