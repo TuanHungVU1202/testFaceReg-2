@@ -1,5 +1,4 @@
 var $motionBox = $('.motion-box');
-var $humanDetection = $('letterInsideHumandetectionBox')
 var scale = 10;	// capture resolution over motion resolution
 var isActivated = false;
 var isTargetInSight = false;
@@ -30,7 +29,6 @@ function capture(payload) {
 
     var box = payload.motionBox;
     if (box) {
-        $humanDetection = "YES";
         // video is flipped, so we're positioning from right instead of left
         var right = box.x.min * scale + 1;
         var top = box.y.min * scale + 1;
@@ -44,6 +42,7 @@ function capture(payload) {
             width: width,
             height: height,
         });
+
 
         if (!isTargetInSight) {
             isTargetInSight = true;

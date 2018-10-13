@@ -51,4 +51,10 @@
             alert(data)
         }
     })
+
+    socket.on('messageFromMotion', function (data) {
+        if(data === "WARNING") {
+            alert(data + ". Strange motion detected")
+        }
+    })
 </script>

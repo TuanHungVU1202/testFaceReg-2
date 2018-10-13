@@ -142,6 +142,14 @@
             $("<a>").attr("href", url).attr("target", "_blank")[0].click();
         }
     })
+
+    socket.on('messageFromMotion', function (data) {
+        if(data === "WARNING") {
+            alert(data + ". Strange motion detected")
+            var url = "http://localhost:2111/motion";
+            $("<a>").attr("href", url).attr("target", "_blank")[0].click();
+        }
+    })
 </script>
 
 

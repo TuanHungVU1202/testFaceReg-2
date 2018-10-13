@@ -25,6 +25,10 @@ var DiffCamEngine = (function() {
 	var includeMotionBox;		// flag to calculate and draw motion bounding box
 	var includeMotionPixels;	// flag to create object denoting pixels with motion
 
+    var detectMotion = []
+
+    // Connect to socket.io
+    var socket= io.connect('http://127.0.0.1:1202');
 
 	function init(options) {
 		// sanity check
@@ -157,6 +161,16 @@ var DiffCamEngine = (function() {
 					return checkMotionPixel(this.motionPixels, x, y)
 				}
 			});
+
+            //modify code from here to interact with server
+			if(diff.score >= scoreThreshold){
+				detectMotion.push('motion detected')
+				//detect motion 21 times
+				if(detectMotion.length === 14) {
+					console.log(detectMotion.length)
+                    socket.emit('getMessageFromMotion', "WARNING")
+				}
+			}
 		}
 
 		// draw current capture normally over diff, ready for next time

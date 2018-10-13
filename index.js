@@ -166,6 +166,7 @@ loadImgDir();
 //setup functions for mqtt client
 mqttClient.on('connect', () => {
     console.log('mqtt client connected')
+    //topic to control device
     mqttClient.subscribe('fromEsp/control/device/1', {qos: 0});
     mqttClient.subscribe('fromEsp/control/device/2', {qos: 0});
     mqttClient.subscribe('fromEsp/control/device/3', {qos: 0});
@@ -179,6 +180,9 @@ mqttClient.on('connect', () => {
     mqttClient.subscribe('fromEsp/sensor/temp', {qos: 0});
     mqttClient.subscribe('fromEsp/sensor/humid', {qos: 0});
     mqttClient.subscribe('fromEsp/sensor/pressure', {qos: 0});
+
+    //topic to receive security alert response
+    mqttClient.subscribe('fromEsp/detect/human', {qos: 0});
 })
 
 mqttClient.on('message', function(topic, message) {
@@ -947,7 +951,7 @@ app.get('/camera', function (req, res) {
             var receivedDataFromDB = imgData.distinct("Registered As")
 
             //config to receive message from outsider requesting for onetime password
-            socketClient.on('connection', function(socket){
+            socketClient.once('connection', function(socket){
                 socket.on('getRandomPassword', function (randomPassword) {
                     console.log('random ', randomPassword)
                     socketClient.emit('randomPassword', randomPassword)
@@ -1061,6 +1065,7 @@ app.get('/outsider', function (req, res) {
         socketClient.once('connection', function(socket){
                 socket.on('getMessageFromOutsider', function (data) {
                     socketClient.emit('messageFromOutsider', data)
+                    mqttClient.publish('toEsp/detect/visitor', "on")
                 })
         })
 
@@ -1127,10 +1132,42 @@ app.get('/outsider', function (req, res) {
     });
 });
 
+
 //Indoor CAMERA
 app.get('/motion', function (req, res) {
-    securityStatus = "ARMED";
+    // securityStatus = "ARMED";
     if(loginFlag === true){
+        MongoClient.connect(mongourl, function (err, db) {
+            var logMotion = db.collection('logMotion')
+            socketClient.once('connection', function(socket){
+                socket.on('getMessageFromMotion', function (data) {
+                    // console.log(data)
+                    //TODO: check this part to make sure SMS function working correctly
+                    //send ALERT to System each 2s IN 5 MINUTES (300s)
+                    var startTime = new Date().getTime()
+                    var interval = setInterval(function() {
+                        if (new Date().getTime() - startTime > 300000) {
+                                clearInterval(interval)
+                                return
+                        }
+                        mqttClient.publish('toEsp/detect/human', "on")
+                    }, 5000)
+
+
+                    //send message to other clients to raise alert
+                    socketClient.emit('messageFromMotion', data)
+
+                    logMotion.insertOne({
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    })
+                })
+            })
+
+        })
 
         res.render('motion',{
             humanDetection: humanDetection,
