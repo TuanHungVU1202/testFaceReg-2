@@ -39,89 +39,13 @@
     <div id="page-inner">
         <h2> INDOOR SECURITY CAMERA</h2>
         <br>
-        <!--
-            Image and audio assets taken from Portal Wiki (http://theportalwiki.com/)
-            under the Attribution 3.0 Unported (CC BY 3.0) license (http://creativecommons.org/licenses/by/3.0/).
-            Changes made: turret.png - whitespace cropped
-        -->
-        <style>
-            div.box{
-                position: relative;
-                text-align: center;
-                width: 120px;
-                height: 120px;
-                margin: 20px auto 10px auto;
-            }
-            div.box .letterInsideSecurityBox {
-                display: block;
-                position: absolute;
-                font-size: 26px;
-                top: 38px;
-                width: 120px;
-                color: {{letterInsideSecurityBox}};
-            }
-            div.box .letterInsideHumandetectionBox {
-                display: block;
-                position: absolute;
-                font-size: 26px;
-                top: 38px;
-                width: 120px;
-                color: {{letterInsideHumandetectionBox}};
-            }
-            div.boxDistance{
-                margin-top: 1.0cm;
-                margin-left: 17cm;
-                position: relative;
-            }
-        </style>
-        <div class = "boxDistance">
-            <div class="col-xs-6 col-md-2">
-                <div class="panel panel-default">
-                    <div class="panel-body easypiechart-panel">
-                        <h4>Human</h4>
-                        <div class="box"><span class="letterInsideHumandetectionBox">{{humanDetection}}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class = "boxDistance">
-            <div class="col-xs-6 col-md-2">
-                <div class="panel panel-default">
-                    <div class="panel-body easypiechart-panel">
-                        <h4>Security Status</h4>
-                        <div class="box"><span class="letterInsideSecurityBox">{{securityStatus}}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="wrapper">
             <video id="video" autoplay></video>
             <div class="motion-box"/>
-
-
         </div>
 </div>
 
 <!-- put this func after body to load it right after every content on page loaded -->
-    <script>
-        $.ajax({
-            success: function (result) {
-                if(result.humanDetection === "YES"){
-                    $("#humanDetection").text("YES");
-                    $("#humanDetection").css("color","red");
-                }
-                if(result.humanDetection === "NO"){
-                    $("#humanDetection").text("NO");
-                    $("#humanDetection").css("color","blue");
-                }
-
-            }
-        });
-    </script>
 <audio src="sound/activated.wav" id="audio-activated" preload="auto" autostart="false"></audio>
 <audio src="sound/i-see-you.wav" id="audio-i-see-you" preload="auto" autostart="false"></audio>
 <audio src="sound/emergency030.wav" id="audio-fire" preload="auto" autostart="false"></audio>

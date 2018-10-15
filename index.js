@@ -383,7 +383,7 @@ app.get('/home', function (req, res) {
             insideTemperature: temperature,
             insideHumidity: humid,
             gasDetection: gasDetection,
-            humanDetection: humanDetection,
+            // humanDetection: humanDetection,
             securityStatus: securityStatus,
 
             letterInsideGasdetectionBox : (gasDetection === "YES") ? "red": "blue",
@@ -401,7 +401,6 @@ app.get('/home', function (req, res) {
     Link with control.handlerbars, see device1ButtonColor and so on
     This should be the procedure in which Application server take data out from mongoDB and control devices
     by sending command directly back to NodeMCU
-
 */
 app.get('/control', function (req, res) {
     if (loginFlag === true) {
@@ -1141,8 +1140,6 @@ app.get('/motion', function (req, res) {
             var logMotion = db.collection('logMotion')
             socketClient.once('connection', function(socket){
                 socket.on('getMessageFromMotion', function (data) {
-                    // console.log(data)
-                    //TODO: check this part to make sure SMS function working correctly
                     //send ALERT to System each 2s IN 5 MINUTES (300s)
                     var startTime = new Date().getTime()
                     var interval = setInterval(function() {
@@ -1170,11 +1167,7 @@ app.get('/motion', function (req, res) {
         })
 
         res.render('motion',{
-            humanDetection: humanDetection,
-            securityStatus: securityStatus,
-
-            letterInsideSecurityBox: (securityStatus === "ARMED") ? "blue": "red",
-            letterInsideHumandetectionBox: (humanDetection === "YES") ? "red": "blue",
+            //
         });
     }
     else
