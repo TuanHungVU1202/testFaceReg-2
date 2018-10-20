@@ -138,8 +138,7 @@ socketClient.on('connection', function(socket){
                     function (doc) {
                        responseState = doc.state;
                        console.log('d1 ', responseState)
-                        socket.emit('responseDevice', 1)
-                        socket.emit('responseData', responseState)
+                       socket.emit('resD1', responseState)
                     }
                 );
                 var cursor2 = floor1.find(
@@ -149,8 +148,8 @@ socketClient.on('connection', function(socket){
                     function (doc) {
                         responseState = doc.state;
                         console.log('d2 ', responseState)
-                        socket.emit('responseDevice', 2)
-                        socket.emit('responseData', responseState)
+                        // socket.emit('responseDevice', 2)
+                        socket.emit('resD2', responseState)
                     }
                 );
                 var cursor3 = floor1.find(
@@ -160,8 +159,8 @@ socketClient.on('connection', function(socket){
                     function (doc) {
                         responseState = doc.state;
                         console.log('d3 ', responseState)
-                        socket.emit('responseDevice', 3)
-                        socket.emit('responseData', responseState)
+                        // socket.emit('responseDevice', 3)
+                        socket.emit('resD3', responseState)
                     }
                 );
                 var cursor4 = floor1.find(
@@ -171,8 +170,8 @@ socketClient.on('connection', function(socket){
                     function (doc) {
                         responseState = doc.state;
                         console.log('d4 ', responseState)
-                        socket.emit('responseDevice', 4)
-                        socket.emit('responseData', responseState)
+                        // socket.emit('responseDevice', 4)
+                        socket.emit('resD4', responseState)
                     }
                 );
             }
