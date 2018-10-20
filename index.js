@@ -10,7 +10,11 @@ var exphbs  = require('express-handlebars')
 
 //set up for mqtt client
 var mqtt = require('mqtt')
+//connect directly
 var mqttClient = mqtt.connect ('mqtt://localhost:3000')
+
+//connect over Websocket
+// var mqttClient = mqtt.connect ('ws://localhost:3021')
 var receivedMessage
 var topicStr
 
@@ -116,6 +120,104 @@ scenes.iAmHome = "off";
 scenes.goodmorning = "off";
 scenes.goodnight = "off";
 scenes.security = "off";
+
+
+//use socket io to reaceive command from RN
+socketClient.on('connection', function(socket){
+    MongoClient.connect(mongourl, function(err, db) {
+        var floor1 = db.collection('floor1')
+
+        //fetching data to android
+        socket.on('requestToFetchData', function(requestToFetch){
+            console.log(requestToFetch)
+            if (requestToFetch === 'positive') {
+                var cursor1 = floor1.find(
+                    {_id: {$eq:"F1.1"}},
+                );
+                cursor1.forEach(
+                    function (doc) {
+                       responseState = doc.state;
+                       console.log('d1 ', responseState)
+                        socket.emit('responseDevice', 1)
+                        socket.emit('responseData', responseState)
+                    }
+                );
+                var cursor2 = floor1.find(
+                    {_id: {$eq:"F1.2"}}
+                );
+                cursor2.forEach(
+                    function (doc) {
+                        responseState = doc.state;
+                        console.log('d2 ', responseState)
+                        socket.emit('responseDevice', 2)
+                        socket.emit('responseData', responseState)
+                    }
+                );
+                var cursor3 = floor1.find(
+                    {_id: {$eq:"F1.3"}}
+                );
+                cursor3.forEach(
+                    function (doc) {
+                        responseState = doc.state;
+                        console.log('d3 ', responseState)
+                        socket.emit('responseDevice', 3)
+                        socket.emit('responseData', responseState)
+                    }
+                );
+                var cursor4 = floor1.find(
+                    {_id: {$eq:"F1.4"}}
+                );
+                cursor4.forEach(
+                    function (doc) {
+                        responseState = doc.state;
+                        console.log('d4 ', responseState)
+                        socket.emit('responseDevice', 4)
+                        socket.emit('responseData', responseState)
+                    }
+                );
+            }
+        })
+
+        //handle data from Android
+        socket.on('deviceFromAndroid', function (idFromAndroid) {
+            socket.on('stateFromAndroid', function (stateFromAndroid) {
+                switch (idFromAndroid) {
+                    case 1:
+                        mqttClient.publish('toEsp/control/device/1', stateFromAndroid)
+                        floor1.updateMany(
+                            {"_id": "F1.1"},
+                            {$set: {state: stateFromAndroid}},
+                        );
+                        break;
+                    case 2:
+                        mqttClient.publish('toEsp/control/device/2', stateFromAndroid)
+                        floor1.updateMany(
+                            {"_id": "F1.2"},
+                            {$set: {state: stateFromAndroid}},
+                        );
+                        break;
+                    case 3:
+                        mqttClient.publish('toEsp/control/device/3', stateFromAndroid)
+                        floor1.updateMany(
+                            {"_id": "F1.3"},
+                            {$set: {state: stateFromAndroid}},
+                        );
+                        break;
+                    case 4:
+                        mqttClient.publish('toEsp/control/device/4', stateFromAndroid)
+                        floor1.updateMany(
+                            {"_id": "F1.4"},
+                            {$set: {state: stateFromAndroid}},
+                        );
+                        break;
+                }
+                // console.log('message from RN ', idFromAndroid)
+                // console.log('state fromn android', stateFromAndroid)
+            })
+        })
+    })
+})
+
 
 
 app.get('/', function (req, res) {
