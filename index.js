@@ -122,6 +122,20 @@ scenes.goodnight = "off";
 scenes.security = "off";
 
 
+//setup to get local ip
+var os = require( 'os' );
+
+//--------code start ------------------------------------------------
+//Init functions to call at the beginning
+//set Interval for it to rerun after some times  <<======= TOO LAGGY
+//Restart server is a better solution
+//load image data at the beginning
+loadImgDir();
+//get local IP
+getLocalIp()
+//-------------------------------------------------------------------
+
+//begin
 //use socket io to reaceive command from RN
 socketClient.on('connection', function(socket){
     MongoClient.connect(mongourl, function(err, db) {
@@ -129,7 +143,7 @@ socketClient.on('connection', function(socket){
 
         //fetching data to android
         socket.on('requestToFetchData', function(requestToFetch){
-            console.log(requestToFetch)
+            // console.log(requestToFetch)
             if (requestToFetch === 'positive') {
                 var cursor1 = floor1.find(
                     {_id: {$eq:"F1.1"}},
@@ -137,7 +151,7 @@ socketClient.on('connection', function(socket){
                 cursor1.forEach(
                     function (doc) {
                        responseState = doc.state;
-                       console.log('d1 ', responseState)
+                       // console.log('d1 ', responseState)
                        socket.emit('resD1', responseState)
                     }
                 );
@@ -147,7 +161,7 @@ socketClient.on('connection', function(socket){
                 cursor2.forEach(
                     function (doc) {
                         responseState = doc.state;
-                        console.log('d2 ', responseState)
+                        // console.log('d2 ', responseState)
                         // socket.emit('responseDevice', 2)
                         socket.emit('resD2', responseState)
                     }
@@ -158,7 +172,7 @@ socketClient.on('connection', function(socket){
                 cursor3.forEach(
                     function (doc) {
                         responseState = doc.state;
-                        console.log('d3 ', responseState)
+                        // console.log('d3 ', responseState)
                         // socket.emit('responseDevice', 3)
                         socket.emit('resD3', responseState)
                     }
@@ -169,7 +183,7 @@ socketClient.on('connection', function(socket){
                 cursor4.forEach(
                     function (doc) {
                         responseState = doc.state;
-                        console.log('d4 ', responseState)
+                        // console.log('d4 ', responseState)
                         // socket.emit('responseDevice', 4)
                         socket.emit('resD4', responseState)
                     }
@@ -256,12 +270,6 @@ app.post('/logincheckCamera', function(req,res){
         res.redirect('/');
     }
 });
-
-
-//call function at the beginning to load DB at the beginning
-//set Interval for it to rerun after some times  <<======= TOO LAGGY
-//Restart server is a better solution
-loadImgDir();
 
 
 //setup functions for mqtt client
@@ -1428,6 +1436,7 @@ function getTime() {
     return hour + ":" + min + ":" + sec;
 }
 
+
 function myTodayDate(){
     var today = new Date();
     var day = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -1442,6 +1451,18 @@ function myTodayDate(){
     return myTodayObj;
 }
 
+
+//get local IP address to enter
+function getLocalIp() {
+    for(let addresses of Object.values(os.networkInterfaces())) {
+        for(let add of addresses) {
+            if(add.address.startsWith('192.168.0.')) {
+                console.log('web server url to enter: ', add.address)
+                // return add.address;
+            }
+        }
+    }
+}
 
 var t1 = performance.now();
 console.log('time taken to run '+ (t1-t0)+ ' ms');
