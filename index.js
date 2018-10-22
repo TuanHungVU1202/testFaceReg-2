@@ -140,6 +140,7 @@ getLocalIp()
 socketClient.on('connection', function(socket){
     MongoClient.connect(mongourl, function(err, db) {
         var floor1 = db.collection('floor1')
+        var logDeviceActivities = db.collection('logDeviceActivities')
 
         //fetching data to android
         socket.on('requestToFetchData', function(requestToFetch){
@@ -197,6 +198,16 @@ socketClient.on('connection', function(socket){
                 switch (idFromAndroid) {
                     case 1:
                         mqttClient.publish('toEsp/control/device/1', stateFromAndroid)
+                        //log data into Mongodb
+                        logDeviceActivities.insertOne({
+                            "deviceId": "F1.1",
+                            "state": stateFromAndroid,
+                            "Timestamp": getTime(),
+                            "Day": myTodayDate().myDay,
+                            "Date": myTodayDate().myDate,
+                            "Month": myTodayDate().myMonth,
+                            "Year": myTodayDate().year,
+                        })
                         floor1.updateMany(
                             {"_id": "F1.1"},
                             {$set: {state: stateFromAndroid}},
@@ -204,6 +215,15 @@ socketClient.on('connection', function(socket){
                         break;
                     case 2:
                         mqttClient.publish('toEsp/control/device/2', stateFromAndroid)
+                        logDeviceActivities.insertOne({
+                            "deviceId": "F1.2",
+                            "state": stateFromAndroid,
+                            "Timestamp": getTime(),
+                            "Day": myTodayDate().myDay,
+                            "Date": myTodayDate().myDate,
+                            "Month": myTodayDate().myMonth,
+                            "Year": myTodayDate().year,
+                        })
                         floor1.updateMany(
                             {"_id": "F1.2"},
                             {$set: {state: stateFromAndroid}},
@@ -211,6 +231,15 @@ socketClient.on('connection', function(socket){
                         break;
                     case 3:
                         mqttClient.publish('toEsp/control/device/3', stateFromAndroid)
+                        logDeviceActivities.insertOne({
+                            "deviceId": "F1.3",
+                            "state": stateFromAndroid,
+                            "Timestamp": getTime(),
+                            "Day": myTodayDate().myDay,
+                            "Date": myTodayDate().myDate,
+                            "Month": myTodayDate().myMonth,
+                            "Year": myTodayDate().year,
+                        })
                         floor1.updateMany(
                             {"_id": "F1.3"},
                             {$set: {state: stateFromAndroid}},
@@ -218,6 +247,15 @@ socketClient.on('connection', function(socket){
                         break;
                     case 4:
                         mqttClient.publish('toEsp/control/device/4', stateFromAndroid)
+                        logDeviceActivities.insertOne({
+                            "deviceId": "F1.4",
+                            "state": stateFromAndroid,
+                            "Timestamp": getTime(),
+                            "Day": myTodayDate().myDay,
+                            "Date": myTodayDate().myDate,
+                            "Month": myTodayDate().myMonth,
+                            "Year": myTodayDate().year,
+                        })
                         floor1.updateMany(
                             {"_id": "F1.4"},
                             {$set: {state: stateFromAndroid}},
@@ -1456,7 +1494,7 @@ function myTodayDate(){
 function getLocalIp() {
     for(let addresses of Object.values(os.networkInterfaces())) {
         for(let add of addresses) {
-            if(add.address.startsWith('192.168.0.')) {
+            if(add.address.startsWith('192.168.')) {
                 console.log('web server url to enter: ', add.address)
                 // return add.address;
             }
