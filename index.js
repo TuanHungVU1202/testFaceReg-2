@@ -768,7 +768,7 @@ app.get('/control', function (req, res) {
 
             app.post('/device5', function (req, res) {
                 deviceState.device5 = (deviceState.device5 === "on") ? "off" : "on";
-                mqttClient.publish('toEsp/control/device/5', deviceState.device4)
+                mqttClient.publish('toEsp/control/device/5', deviceState.device5)
 
                 logDeviceActivities.insertOne({
                     "deviceId": "F1.5",
