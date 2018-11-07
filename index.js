@@ -104,6 +104,7 @@ deviceState.device1 = "off";
 deviceState.device2 = "off";
 deviceState.device3 = "off";
 deviceState.device4 = "off";
+deviceState.device5 = "off";
 
 deviceState.device1TimeOn = "00:00";
 deviceState.device1TimeOff = "00:00";
@@ -113,6 +114,8 @@ deviceState.device3TimeOn = "00:00";
 deviceState.device3TimeOff = "00:00";
 deviceState.device4TimeOn = "00:00";
 deviceState.device4TimeOff = "00:00";
+deviceState.device5TimeOn = "00:00";
+deviceState.device5TimeOff = "00:00";
 
 //init scenes
 var scenes = {};
@@ -189,6 +192,17 @@ socketClient.on('connection', function(socket){
                         socket.emit('resD4', responseState)
                     }
                 );
+                var cursor5 = floor1.find(
+                    {_id: {$eq:"F1.5"}}
+                );
+                cursor4.forEach(
+                    function (doc) {
+                        responseState = doc.state;
+                        // console.log('d4 ', responseState)
+                        // socket.emit('responseDevice', 4)
+                        socket.emit('resD5', responseState)
+                    }
+                );
             }
         })
 
@@ -261,6 +275,22 @@ socketClient.on('connection', function(socket){
                             {$set: {state: stateFromAndroid}},
                         );
                         break;
+                    case 5:
+                        mqttClient.publish('toEsp/control/device/5', stateFromAndroid)
+                        logDeviceActivities.insertOne({
+                            "deviceId": "F1.5",
+                            "state": stateFromAndroid,
+                            "Timestamp": getTime(),
+                            "Day": myTodayDate().myDay,
+                            "Date": myTodayDate().myDate,
+                            "Month": myTodayDate().myMonth,
+                            "Year": myTodayDate().year,
+                        })
+                        floor1.updateMany(
+                            {"_id": "F1.5"},
+                            {$set: {state: stateFromAndroid}},
+                        );
+                        break;
                 }
                 // console.log('message from RN ', idFromAndroid)
                 // console.log('state fromn android', stateFromAndroid)
@@ -318,10 +348,13 @@ mqttClient.on('connect', () => {
     mqttClient.subscribe('fromEsp/control/device/2', {qos: 0});
     mqttClient.subscribe('fromEsp/control/device/3', {qos: 0});
     mqttClient.subscribe('fromEsp/control/device/4', {qos: 0});
+    mqttClient.subscribe('fromEsp/control/device/5', {qos: 0});
+    //timer
     mqttClient.subscribe('fromEsp/timer/device/1', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/2', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/3', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/4', {qos: 0});
+    mqttClient.subscribe('fromEsp/timer/device/5', {qos: 0});
 
     //reserving for sensors topic
     mqttClient.subscribe('fromEsp/sensor/temp', {qos: 0});
@@ -381,7 +414,15 @@ function loadStateFromSystem () {
             deviceState.device4 = receivedMessage;
             floor1.updateMany(
                 {"_id": "F1.4"},
-                {$set: {"_id": "F1.4", name: "Power Tracker", state: deviceState.device4}},
+                {$set: {"_id": "F1.4", name: "Dining Room Light", state: deviceState.device4}},
+                {upsert: true}
+            );
+        }
+        if (topicStr === 'fromEsp/control/device/5') {
+            deviceState.device4 = receivedMessage;
+            floor1.updateMany(
+                {"_id": "F1.5"},
+                {$set: {"_id": "F1.5", name: "Bathroom Light", state: deviceState.device5}},
                 {upsert: true}
             );
         }
@@ -593,12 +634,19 @@ app.get('/control', function (req, res) {
                     deviceState.device4 = doc.state;
                 }
             );
+            var cursor5 = floor1.find(
+                {_id: {$eq:"F1.5"}}
+            );
+            cursor5.forEach(
+                function (doc) {
+                    deviceState.device5 = doc.state;
+                }
+            );
             },10);       //10 ms
 
             // Post state of devices to control them
             app.post('/device1', function (req, res) {
                 deviceState.device1 = (deviceState.device1 === "on") ? "off" : "on";
-
                 //newly added
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 //log data into Mongodb
@@ -688,7 +736,6 @@ app.get('/control', function (req, res) {
                 res.redirect('/control');
             });
 
-
             app.post('/device4', function (req, res) {
                 deviceState.device4 = (deviceState.device4 === "on") ? "off" : "on";
                 mqttClient.publish('toEsp/control/device/4', deviceState.device4)
@@ -718,6 +765,36 @@ app.get('/control', function (req, res) {
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/control');
             });
+
+            app.post('/device5', function (req, res) {
+                deviceState.device5 = (deviceState.device5 === "on") ? "off" : "on";
+                mqttClient.publish('toEsp/control/device/5', deviceState.device4)
+
+                logDeviceActivities.insertOne({
+                    "deviceId": "F1.5",
+                    "state": deviceState.device5,
+                    "Timestamp": getTime(),
+                    "Day": myTodayDate().myDay,
+                    "Date": myTodayDate().myDate,
+                    "Month": myTodayDate().myMonth,
+                    "Year": myTodayDate().year,
+                })
+
+                if (deviceState.device5 === "on") {
+                    floor1.updateMany(
+                        {"_id": "F1.5"},
+                        {$set: {state: "on"}}
+                    )
+                }
+                else {
+                    floor1.updateMany(
+                        {"_id": "F1.5"},
+                        {$set: {state: "off"}},
+                    )
+                }
+                checkChangedFlag.changedFlagStatus = "true";
+                res.redirect('/control');
+            });
         });
 
             res.render('control', {
@@ -725,11 +802,13 @@ app.get('/control', function (req, res) {
                 device2state: (deviceState.device2 === "on") ? 'ON' : 'OFF',
                 device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
                 device4state: (deviceState.device4 === "on") ? 'ON' : 'OFF',
+                device5state: (deviceState.device5 === "on") ? 'ON' : 'OFF',
 
                 device1ButtonColor: (deviceState.device1 === "on") ? "blue" : "red",
                 device2ButtonColor: (deviceState.device2 === "on") ? "blue" : "red",
                 device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
                 device4ButtonColor: (deviceState.device4 === "on") ? "blue" : "red",
+                device5ButtonColor: (deviceState.device5 === "on") ? "blue" : "red",
             });
 
     }
@@ -770,6 +849,14 @@ app.get('/submitTheTimeDevice4', function(req,res){
     checkChangedFlag.changedFlagStatus = "true";
     res.redirect('/control');
 });
+app.get('/submitTheTimeDevice5', function(req,res){
+    deviceState.device5TimeOn = req.query.setTimeOn;
+    deviceState.device5TimeOff = req.query.setTimeOff;
+    mqttClient.publish('toEsp/timer/device/5/on', req.query.setTimeOn)
+    mqttClient.publish('toEsp/timer/device/5/off', req.query.setTimeOff)
+    checkChangedFlag.changedFlagStatus = "true";
+    res.redirect('/control');
+});
 
 
 //SCENES
@@ -791,27 +878,32 @@ app.get('/scenes', function (req, res) {
                 scenes.iAmHome = "off";
                 scenes.goodnight = "off";
                 scenes.security = "off";
-                //updateMany for updating database
-                //maybe need an IF statement in oder not to affect the global DB
-                floor1.updateMany(
-                    {"_id": "F1.1"},
-                    {$set: {state: "on"}}
-                );
-                floor1.updateMany(
-                    {"_id": "F1.2"},
-                    {$set: {state: "off"}}
-                );
-                floor1.updateMany(
-                    {"_id": "F1.3"},
-                    {$set: {state: "off"}}
-                );
                 //deviceState for updating button control in Control page
                 deviceState.device1 = "on";
                 deviceState.device2 = "off";
-                deviceState.device3 = "off";
+                deviceState.device4 = "off";
+                deviceState.device5 = "on";
+                //updateMany for updating database
+                floor1.updateMany(
+                    {"_id": "F1.1"},
+                    {$set: {state: deviceState.device1}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.2"},
+                    {$set: {state: deviceState.device2}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.4"},
+                    {$set: {state: deviceState.device4}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.5"},
+                    {$set: {state: deviceState.device5}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
-                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                mqttClient.publish('toEsp/control/device/4', deviceState.device4)
+                mqttClient.publish('toEsp/control/device/5', deviceState.device5)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -832,8 +924,17 @@ app.get('/scenes', function (req, res) {
                         "Year": myTodayDate().year,
                     },
                     {
-                        "deviceId": "F1.3",
-                        "state": deviceState.device3,
+                        "deviceId": "F1.4",
+                        "state": deviceState.device4,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.5",
+                        "state": deviceState.device5,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -849,24 +950,31 @@ app.get('/scenes', function (req, res) {
                 scenes.goodmorning = "off";
                 scenes.goodnight = "off";
                 scenes.security = "off";
+                deviceState.device1 = "on";
+                deviceState.device2 = "on";
+                deviceState.device4 = "off";
+                deviceState.device5 = "off";
+                //updateMany for updating database
                 floor1.updateMany(
                     {"_id": "F1.1"},
-                    {$set: {state: "on"}}
+                    {$set: {state: deviceState.device1}}
                 );
                 floor1.updateMany(
                     {"_id": "F1.2"},
-                    {$set: {state: "off"}}
+                    {$set: {state: deviceState.device2}}
                 );
                 floor1.updateMany(
-                    {"_id": "F1.3"},
-                    {$set: {state: "on"}}
+                    {"_id": "F1.4"},
+                    {$set: {state: deviceState.device4}}
                 );
-                deviceState.device1 = "on";
-                deviceState.device2 = "off";
-                deviceState.device3 = "on";
+                floor1.updateMany(
+                    {"_id": "F1.5"},
+                    {$set: {state: deviceState.device5}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
-                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                mqttClient.publish('toEsp/control/device/4', deviceState.device4)
+                mqttClient.publish('toEsp/control/device/5', deviceState.device5)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -887,8 +995,17 @@ app.get('/scenes', function (req, res) {
                         "Year": myTodayDate().year,
                     },
                     {
-                        "deviceId": "F1.3",
-                        "state": deviceState.device3,
+                        "deviceId": "F1.4",
+                        "state": deviceState.device4,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.5",
+                        "state": deviceState.device5,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -904,24 +1021,31 @@ app.get('/scenes', function (req, res) {
                 scenes.goodmorning = "off";
                 scenes.iAmHome = "off";
                 scenes.security = "off";
+                deviceState.device1 = "off";
+                deviceState.device2 = "off";
+                deviceState.device4 = "off";
+                deviceState.device5 = "off";
+                //updateMany for updating database
                 floor1.updateMany(
                     {"_id": "F1.1"},
-                    {$set: {state: "off"}}
+                    {$set: {state: deviceState.device1}}
                 );
                 floor1.updateMany(
                     {"_id": "F1.2"},
-                    {$set: {state: "off"}}
+                    {$set: {state: deviceState.device2}}
                 );
                 floor1.updateMany(
-                    {"_id": "F1.3"},
-                    {$set: {state: "off"}}
+                    {"_id": "F1.4"},
+                    {$set: {state: deviceState.device4}}
                 );
-                deviceState.device1 = "off";
-                deviceState.device2 = "off";
-                deviceState.device3 = "off";
+                floor1.updateMany(
+                    {"_id": "F1.5"},
+                    {$set: {state: deviceState.device5}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
-                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                mqttClient.publish('toEsp/control/device/4', deviceState.device4)
+                mqttClient.publish('toEsp/control/device/5', deviceState.device5)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -942,8 +1066,17 @@ app.get('/scenes', function (req, res) {
                         "Year": myTodayDate().year,
                     },
                     {
-                        "deviceId": "F1.3",
-                        "state": deviceState.device3,
+                        "deviceId": "F1.4",
+                        "state": deviceState.device4,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.5",
+                        "state": deviceState.device5,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -959,24 +1092,31 @@ app.get('/scenes', function (req, res) {
                 scenes.goodmorning = "off";
                 scenes.iAmHome = "off";
                 scenes.goodnight = "off";
+                deviceState.device1 = "off";
+                deviceState.device2 = "on";
+                deviceState.device4 = "off";
+                deviceState.device5 = "off";
+                //updateMany for updating database
                 floor1.updateMany(
                     {"_id": "F1.1"},
-                    {$set: {state: "off"}}
+                    {$set: {state: deviceState.device1}}
                 );
                 floor1.updateMany(
                     {"_id": "F1.2"},
-                    {$set: {state: "on"}}
+                    {$set: {state: deviceState.device2}}
                 );
                 floor1.updateMany(
-                    {"_id": "F1.3"},
-                    {$set: {state: "off"}}
+                    {"_id": "F1.4"},
+                    {$set: {state: deviceState.device4}}
                 );
-                deviceState.device1 = "off";
-                deviceState.device2 = "on";
-                deviceState.device3 = "off";
+                floor1.updateMany(
+                    {"_id": "F1.5"},
+                    {$set: {state: deviceState.device5}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
-                mqttClient.publish('toEsp/control/device/3', deviceState.device3)
+                mqttClient.publish('toEsp/control/device/4', deviceState.device4)
+                mqttClient.publish('toEsp/control/device/5', deviceState.device5)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -997,8 +1137,17 @@ app.get('/scenes', function (req, res) {
                         "Year": myTodayDate().year,
                     },
                     {
-                        "deviceId": "F1.3",
-                        "state": deviceState.device3,
+                        "deviceId": "F1.4",
+                        "state": deviceState.device4,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.5",
+                        "state": deviceState.device5,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -1288,12 +1437,14 @@ app.get('/motion', function (req, res) {
             socketClient.once('connection', function(socket){
                 socket.on('getMessageFromMotion', function (data) {
                     //send ALERT to System each 2s IN 5 MINUTES (300s)
+                    //5 mins too long for a demo
                     var startTime = new Date().getTime()
                     var interval = setInterval(function() {
-                        if (new Date().getTime() - startTime > 300000) {
+                        if (new Date().getTime() - startTime > 20000) {
                                 clearInterval(interval)
                                 return
                         }
+                        //TODO: implement SIM module to receive alert
                         mqttClient.publish('toEsp/detect/human', "on")
                     }, 5000)
 
@@ -1550,7 +1701,7 @@ MongoClient.connect(mongourl, function(err, db){
         {"_id": "F1.1", name: "Front Light", state: "off"},
         {"_id": "F1.2", name: "Stair Light", state: "off"},
         {"_id": "F1.3", name: "Air Cooler", state: "off"},
-        {"_id": "F1.4", name: "Power Tracker", state: "off"}
+        {"_id": "F1.4", name: "Dining Room Light", state: "off"}
     ];
 //upsert: true means write new document if not yet exist. otherwise update fields
    	floor1.updateMany(
@@ -1570,7 +1721,7 @@ MongoClient.connect(mongourl, function(err, db){
     );
     	floor1.updateMany(
     	{"_id": "F1.4"},
-    	{$set: {"_id": "F1.4", name: "Power Tracker", state: "off"}},
+    	{$set: {"_id": "F1.4", name: "Dining Room Light", state: "off"}},
     	{upsert: true}
     );
 /*
