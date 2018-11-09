@@ -363,14 +363,37 @@ mqttClient.on('connect', () => {
 
     //topic to receive security alert response
     mqttClient.subscribe('fromEsp/detect/human', {qos: 0});
+
+    //subcribe to keep updating with  Raspberry Pi controlling D3
+    mqttClient.subscribe('toEsp/control/device/3', {qos: 0});
 })
 
-mqttClient.on('message', function(topic, message) {
-    receivedMessage = message.toString()
-    topicStr = topic.toString()
-    loadStateFromSystem()
-    //console.log('Received Topic: ', topicStr)
-    //console.log('Received mess from ESP: ', receivedMessage)
+MongoClient.connect(mongourl, function(err, db) {
+    var floor1 = db.collection('floor1')
+    var logDeviceActivities = db.collection('logDeviceActivities')
+    mqttClient.on('message', function (topic, message) {
+        receivedMessage = message.toString()
+        topicStr = topic.toString()
+        if(topicStr === 'toEsp/control/device/3') {
+            logDeviceActivities.insertOne({
+                "deviceId": "F1.3",
+                "state": receivedMessage,
+                "Timestamp": getTime(),
+                "Day": myTodayDate().myDay,
+                "Date": myTodayDate().myDate,
+                "Month": myTodayDate().myMonth,
+                "Year": myTodayDate().year,
+            })
+            floor1.updateMany(
+                {"_id": "F1.3"},
+                {$set: {state: receivedMessage}},
+            );
+        }
+        loadStateFromSystem()
+        //console.log('Received Topic: ', topicStr)
+        //console.log('Received mess from ESP: ', receivedMessage)
+
+    })
 })
 
 mqttClient.on('close', () => {
