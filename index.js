@@ -366,11 +366,14 @@ mqttClient.on('connect', () => {
 
     //subcribe to keep updating with  Raspberry Pi controlling D3
     mqttClient.subscribe('toEsp/control/device/3', {qos: 0});
+    //subcribe to face access log from RPi
+    mqttClient.subscribe('fromRPi/log/face', {qos: 0});
 })
 
 MongoClient.connect(mongourl, function(err, db) {
     var floor1 = db.collection('floor1')
     var logDeviceActivities = db.collection('logDeviceActivities')
+    var logFaceDetection = db.collection('logFaceDetection')
     mqttClient.on('message', function (topic, message) {
         receivedMessage = message.toString()
         topicStr = topic.toString()
@@ -388,6 +391,17 @@ MongoClient.connect(mongourl, function(err, db) {
                 {"_id": "F1.3"},
                 {$set: {state: receivedMessage}},
             );
+        }
+        if(topicStr === 'fromRPi/log/face'){
+            logFaceDetection.insertOne({
+                "Person": receivedMessage,
+                "Timestamp": getTime(),
+                "Day": myTodayDate().myDay,
+                "Date": myTodayDate().myDate,
+                "Month": myTodayDate().myMonth,
+                "Year": myTodayDate().year,
+                "Permission": "allowed",
+            })
         }
         loadStateFromSystem()
         //console.log('Received Topic: ', topicStr)
