@@ -105,6 +105,8 @@ deviceState.device2 = "off";
 deviceState.device3 = "off";
 deviceState.device4 = "off";
 deviceState.device5 = "off";
+deviceState.device6 = "off";
+deviceState.device7 = "off";
 
 deviceState.device1TimeOn = "00:00";
 deviceState.device1TimeOff = "00:00";
@@ -116,6 +118,10 @@ deviceState.device4TimeOn = "00:00";
 deviceState.device4TimeOff = "00:00";
 deviceState.device5TimeOn = "00:00";
 deviceState.device5TimeOff = "00:00";
+deviceState.device6TimeOn = "00:00";
+deviceState.device6TimeOff = "00:00";
+deviceState.device7TimeOn = "00:00";
+deviceState.device7TimeOff = "00:00";
 
 //init scenes
 var scenes = {};
@@ -195,12 +201,34 @@ socketClient.on('connection', function(socket){
                 var cursor5 = floor1.find(
                     {_id: {$eq:"F1.5"}}
                 );
-                cursor4.forEach(
+                cursor5.forEach(
                     function (doc) {
                         responseState = doc.state;
                         // console.log('d4 ', responseState)
                         // socket.emit('responseDevice', 4)
                         socket.emit('resD5', responseState)
+                    }
+                );
+                var cursor6 = floor1.find(
+                    {_id: {$eq:"F1.6"}}
+                );
+                cursor6.forEach(
+                    function (doc) {
+                        responseState = doc.state;
+                        // console.log('d4 ', responseState)
+                        // socket.emit('responseDevice', 4)
+                        socket.emit('resD6', responseState)
+                    }
+                );
+                var cursor7 = floor1.find(
+                    {_id: {$eq:"F1.7"}}
+                );
+                cursor7.forEach(
+                    function (doc) {
+                        responseState = doc.state;
+                        // console.log('d4 ', responseState)
+                        // socket.emit('responseDevice', 4)
+                        socket.emit('resD7', responseState)
                     }
                 );
             }
@@ -291,6 +319,38 @@ socketClient.on('connection', function(socket){
                             {$set: {state: stateFromAndroid}},
                         );
                         break;
+                    case 6:
+                        mqttClient.publish('toEsp/control/device/6', stateFromAndroid)
+                        logDeviceActivities.insertOne({
+                            "deviceId": "F1.6",
+                            "state": stateFromAndroid,
+                            "Timestamp": getTime(),
+                            "Day": myTodayDate().myDay,
+                            "Date": myTodayDate().myDate,
+                            "Month": myTodayDate().myMonth,
+                            "Year": myTodayDate().year,
+                        })
+                        floor1.updateMany(
+                            {"_id": "F1.6"},
+                            {$set: {state: stateFromAndroid}},
+                        );
+                        break;
+                    case 7:
+                        mqttClient.publish('toEsp/control/device/7', stateFromAndroid)
+                        logDeviceActivities.insertOne({
+                            "deviceId": "F1.7",
+                            "state": stateFromAndroid,
+                            "Timestamp": getTime(),
+                            "Day": myTodayDate().myDay,
+                            "Date": myTodayDate().myDate,
+                            "Month": myTodayDate().myMonth,
+                            "Year": myTodayDate().year,
+                        })
+                        floor1.updateMany(
+                            {"_id": "F1.7"},
+                            {$set: {state: stateFromAndroid}},
+                        );
+                        break;
                 }
                 // console.log('message from RN ', idFromAndroid)
                 // console.log('state fromn android', stateFromAndroid)
@@ -349,12 +409,16 @@ mqttClient.on('connect', () => {
     mqttClient.subscribe('fromEsp/control/device/3', {qos: 0});
     mqttClient.subscribe('fromEsp/control/device/4', {qos: 0});
     mqttClient.subscribe('fromEsp/control/device/5', {qos: 0});
+    mqttClient.subscribe('fromEsp/control/device/6', {qos: 0});
+    mqttClient.subscribe('fromEsp/control/device/7', {qos: 0});
     //timer
     mqttClient.subscribe('fromEsp/timer/device/1', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/2', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/3', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/4', {qos: 0});
     mqttClient.subscribe('fromEsp/timer/device/5', {qos: 0});
+    mqttClient.subscribe('fromEsp/timer/device/6', {qos: 0});
+    mqttClient.subscribe('fromEsp/timer/device/7', {qos: 0});
 
     //reserving for sensors topic
     mqttClient.subscribe('fromEsp/sensor/temp', {qos: 0});
@@ -456,10 +520,26 @@ function loadStateFromSystem () {
             );
         }
         if (topicStr === 'fromEsp/control/device/5') {
-            deviceState.device4 = receivedMessage;
+            deviceState.device5 = receivedMessage;
             floor1.updateMany(
                 {"_id": "F1.5"},
                 {$set: {"_id": "F1.5", name: "Bathroom Light", state: deviceState.device5}},
+                {upsert: true}
+            );
+        }
+        if (topicStr === 'fromEsp/control/device/6') {
+            deviceState.device6 = receivedMessage;
+            floor1.updateMany(
+                {"_id": "F1.6"},
+                {$set: {"_id": "F1.6", name: "Living Room Light", state: deviceState.device6}},
+                {upsert: true}
+            );
+        }
+        if (topicStr === 'fromEsp/control/device/7') {
+            deviceState.device7 = receivedMessage;
+            floor1.updateMany(
+                {"_id": "F1.7"},
+                {$set: {"_id": "F1.7", name: "Conditioner", state: deviceState.device7}},
                 {upsert: true}
             );
         }
@@ -679,7 +759,23 @@ app.get('/control', function (req, res) {
                     deviceState.device5 = doc.state;
                 }
             );
-            },10);       //10 ms
+                var cursor6 = floor1.find(
+                    {_id: {$eq:"F1.6"}}
+                );
+                cursor6.forEach(
+                    function (doc) {
+                        deviceState.device6 = doc.state;
+                    }
+                );
+                var cursor7 = floor1.find(
+                    {_id: {$eq:"F1.7"}}
+                );
+                cursor7.forEach(
+                    function (doc) {
+                        deviceState.device7 = doc.state;
+                    }
+                );
+            },20);       //10 ms
 
             // Post state of devices to control them
             app.post('/device1', function (req, res) {
@@ -832,6 +928,66 @@ app.get('/control', function (req, res) {
                 checkChangedFlag.changedFlagStatus = "true";
                 res.redirect('/control');
             });
+
+            app.post('/device6', function (req, res) {
+                deviceState.device6 = (deviceState.device6 === "on") ? "off" : "on";
+                mqttClient.publish('toEsp/control/device/6', deviceState.device6)
+
+                logDeviceActivities.insertOne({
+                    "deviceId": "F1.6",
+                    "state": deviceState.device6,
+                    "Timestamp": getTime(),
+                    "Day": myTodayDate().myDay,
+                    "Date": myTodayDate().myDate,
+                    "Month": myTodayDate().myMonth,
+                    "Year": myTodayDate().year,
+                })
+
+                if (deviceState.device6 === "on") {
+                    floor1.updateMany(
+                        {"_id": "F1.6"},
+                        {$set: {state: "on"}}
+                    )
+                }
+                else {
+                    floor1.updateMany(
+                        {"_id": "F1.6"},
+                        {$set: {state: "off"}},
+                    )
+                }
+                checkChangedFlag.changedFlagStatus = "true";
+                res.redirect('/control');
+            });
+
+            app.post('/device7', function (req, res) {
+                deviceState.device7 = (deviceState.device7 === "on") ? "off" : "on";
+                mqttClient.publish('toEsp/control/device/7', deviceState.device7)
+
+                logDeviceActivities.insertOne({
+                    "deviceId": "F1.7",
+                    "state": deviceState.device7,
+                    "Timestamp": getTime(),
+                    "Day": myTodayDate().myDay,
+                    "Date": myTodayDate().myDate,
+                    "Month": myTodayDate().myMonth,
+                    "Year": myTodayDate().year,
+                })
+
+                if (deviceState.device7 === "on") {
+                    floor1.updateMany(
+                        {"_id": "F1.7"},
+                        {$set: {state: "on"}}
+                    )
+                }
+                else {
+                    floor1.updateMany(
+                        {"_id": "F1.7"},
+                        {$set: {state: "off"}},
+                    )
+                }
+                checkChangedFlag.changedFlagStatus = "true";
+                res.redirect('/control');
+            });
         });
 
             res.render('control', {
@@ -840,12 +996,16 @@ app.get('/control', function (req, res) {
                 device3state: (deviceState.device3 === "on") ? 'OPEN' : 'CLOSED',
                 device4state: (deviceState.device4 === "on") ? 'ON' : 'OFF',
                 device5state: (deviceState.device5 === "on") ? 'ON' : 'OFF',
+                device6state: (deviceState.device6 === "on") ? 'ON' : 'OFF',
+                device7state: (deviceState.device7 === "on") ? 'ON' : 'OFF',
 
                 device1ButtonColor: (deviceState.device1 === "on") ? "blue" : "red",
                 device2ButtonColor: (deviceState.device2 === "on") ? "blue" : "red",
                 device3ButtonColor: (deviceState.device3 === "on") ? "blue" : "red",
                 device4ButtonColor: (deviceState.device4 === "on") ? "blue" : "red",
                 device5ButtonColor: (deviceState.device5 === "on") ? "blue" : "red",
+                device6ButtonColor: (deviceState.device6 === "on") ? "blue" : "red",
+                device7ButtonColor: (deviceState.device7 === "on") ? "blue" : "red",
             });
 
     }
@@ -894,6 +1054,22 @@ app.get('/submitTheTimeDevice5', function(req,res){
     checkChangedFlag.changedFlagStatus = "true";
     res.redirect('/control');
 });
+app.get('/submitTheTimeDevice6', function(req,res){
+    deviceState.device6TimeOn = req.query.setTimeOn;
+    deviceState.device6TimeOff = req.query.setTimeOff;
+    mqttClient.publish('toEsp/timer/device/6/on', req.query.setTimeOn)
+    mqttClient.publish('toEsp/timer/device/6/off', req.query.setTimeOff)
+    checkChangedFlag.changedFlagStatus = "true";
+    res.redirect('/control');
+});
+app.get('/submitTheTimeDevice7', function(req,res){
+    deviceState.device7TimeOn = req.query.setTimeOn;
+    deviceState.device7TimeOff = req.query.setTimeOff;
+    mqttClient.publish('toEsp/timer/device/7/on', req.query.setTimeOn)
+    mqttClient.publish('toEsp/timer/device/7/off', req.query.setTimeOff)
+    checkChangedFlag.changedFlagStatus = "true";
+    res.redirect('/control');
+});
 
 
 //SCENES
@@ -920,6 +1096,8 @@ app.get('/scenes', function (req, res) {
                 deviceState.device2 = "off";
                 deviceState.device4 = "off";
                 deviceState.device5 = "on";
+                deviceState.device6 = "on";
+                deviceState.device7 = "off";
                 //updateMany for updating database
                 floor1.updateMany(
                     {"_id": "F1.1"},
@@ -937,10 +1115,20 @@ app.get('/scenes', function (req, res) {
                     {"_id": "F1.5"},
                     {$set: {state: deviceState.device5}}
                 );
+                floor1.updateMany(
+                    {"_id": "F1.6"},
+                    {$set: {state: deviceState.device6}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.7"},
+                    {$set: {state: deviceState.device7}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/4', deviceState.device4)
                 mqttClient.publish('toEsp/control/device/5', deviceState.device5)
+                mqttClient.publish('toEsp/control/device/6', deviceState.device6)
+                mqttClient.publish('toEsp/control/device/7', deviceState.device7)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -972,6 +1160,24 @@ app.get('/scenes', function (req, res) {
                     {
                         "deviceId": "F1.5",
                         "state": deviceState.device5,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.6",
+                        "state": deviceState.device6,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.7",
+                        "state": deviceState.device7,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -991,6 +1197,8 @@ app.get('/scenes', function (req, res) {
                 deviceState.device2 = "on";
                 deviceState.device4 = "off";
                 deviceState.device5 = "off";
+                deviceState.device6 = "on";
+                deviceState.device7 = "on";
                 //updateMany for updating database
                 floor1.updateMany(
                     {"_id": "F1.1"},
@@ -1008,10 +1216,20 @@ app.get('/scenes', function (req, res) {
                     {"_id": "F1.5"},
                     {$set: {state: deviceState.device5}}
                 );
+                floor1.updateMany(
+                    {"_id": "F1.6"},
+                    {$set: {state: deviceState.device6}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.7"},
+                    {$set: {state: deviceState.device7}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/4', deviceState.device4)
                 mqttClient.publish('toEsp/control/device/5', deviceState.device5)
+                mqttClient.publish('toEsp/control/device/6', deviceState.device6)
+                mqttClient.publish('toEsp/control/device/7', deviceState.device7)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -1043,6 +1261,24 @@ app.get('/scenes', function (req, res) {
                     {
                         "deviceId": "F1.5",
                         "state": deviceState.device5,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.6",
+                        "state": deviceState.device6,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.7",
+                        "state": deviceState.device7,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -1062,6 +1298,8 @@ app.get('/scenes', function (req, res) {
                 deviceState.device2 = "off";
                 deviceState.device4 = "off";
                 deviceState.device5 = "off";
+                deviceState.device6 = "off";
+                deviceState.device7 = "on";
                 //updateMany for updating database
                 floor1.updateMany(
                     {"_id": "F1.1"},
@@ -1079,10 +1317,20 @@ app.get('/scenes', function (req, res) {
                     {"_id": "F1.5"},
                     {$set: {state: deviceState.device5}}
                 );
+                floor1.updateMany(
+                    {"_id": "F1.6"},
+                    {$set: {state: deviceState.device6}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.7"},
+                    {$set: {state: deviceState.device7}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/4', deviceState.device4)
                 mqttClient.publish('toEsp/control/device/5', deviceState.device5)
+                mqttClient.publish('toEsp/control/device/6', deviceState.device6)
+                mqttClient.publish('toEsp/control/device/7', deviceState.device7)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -1114,6 +1362,24 @@ app.get('/scenes', function (req, res) {
                     {
                         "deviceId": "F1.5",
                         "state": deviceState.device5,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.6",
+                        "state": deviceState.device6,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.7",
+                        "state": deviceState.device7,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -1133,6 +1399,8 @@ app.get('/scenes', function (req, res) {
                 deviceState.device2 = "on";
                 deviceState.device4 = "off";
                 deviceState.device5 = "off";
+                deviceState.device6 = "off";
+                deviceState.device7 = "off";
                 //updateMany for updating database
                 floor1.updateMany(
                     {"_id": "F1.1"},
@@ -1150,10 +1418,20 @@ app.get('/scenes', function (req, res) {
                     {"_id": "F1.5"},
                     {$set: {state: deviceState.device5}}
                 );
+                floor1.updateMany(
+                    {"_id": "F1.6"},
+                    {$set: {state: deviceState.device6}}
+                );
+                floor1.updateMany(
+                    {"_id": "F1.7"},
+                    {$set: {state: deviceState.device7}}
+                );
                 mqttClient.publish('toEsp/control/device/1', deviceState.device1)
                 mqttClient.publish('toEsp/control/device/2', deviceState.device2)
                 mqttClient.publish('toEsp/control/device/4', deviceState.device4)
                 mqttClient.publish('toEsp/control/device/5', deviceState.device5)
+                mqttClient.publish('toEsp/control/device/6', deviceState.device6)
+                mqttClient.publish('toEsp/control/device/7', deviceState.device7)
                 logDeviceActivities.insertMany([
                     {
                         "deviceId": "F1.1",
@@ -1185,6 +1463,24 @@ app.get('/scenes', function (req, res) {
                     {
                         "deviceId": "F1.5",
                         "state": deviceState.device5,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.6",
+                        "state": deviceState.device6,
+                        "Timestamp": getTime(),
+                        "Day": myTodayDate().myDay,
+                        "Date": myTodayDate().myDate,
+                        "Month": myTodayDate().myMonth,
+                        "Year": myTodayDate().year,
+                    },
+                    {
+                        "deviceId": "F1.7",
+                        "state": deviceState.device7,
                         "Timestamp": getTime(),
                         "Day": myTodayDate().myDay,
                         "Date": myTodayDate().myDate,
@@ -1482,6 +1778,7 @@ app.get('/motion', function (req, res) {
                                 return
                         }
                         //TODO: implement SIM module to receive alert
+                        //TODO: send email to users after motion detected
                         mqttClient.publish('toEsp/detect/human', "on")
                     }, 5000)
 
