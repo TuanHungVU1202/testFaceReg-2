@@ -489,7 +489,7 @@ MongoClient.connect(mongourl, function(err, db) {
                 from: 'vthung122@gmail.com',
                 to: 'vutuanhung@outlook.com',
                 subject: 'Door Accessing',
-                text: detectPerson+ ' is just accessed main door!'
+                text: receivedMessage+ ' is just accessed main door!'
             };
             transporter.sendMail(mailDoorAccess, function(error, info){
                 if (error) {
