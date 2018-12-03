@@ -35,12 +35,6 @@ var mailMotion = {
     subject: 'Motion Alert',
     text: 'Motion detected in your house, please check your security camera!'
 };
-var mailDoorAccess = {
-    from: 'vthung122@gmail.com',
-    to: 'vutuanhung@outlook.com',
-    subject: 'Door Accessing',
-    text: 'Door is just accessed by ' + detectPerson
-};
 
 //vars for handleImage pages
 var fs = require ('fs')
@@ -490,7 +484,13 @@ MongoClient.connect(mongourl, function(err, db) {
                 "Year": myTodayDate().year,
                 "Permission": "allowed",
             })
-
+            //send email
+            var mailDoorAccess = {
+                from: 'vthung122@gmail.com',
+                to: 'vutuanhung@outlook.com',
+                subject: 'Door Accessing',
+                text: detectPerson+ ' is just accessed main door!'
+            };
             transporter.sendMail(mailDoorAccess, function(error, info){
                 if (error) {
                     console.log(error);
@@ -1674,6 +1674,12 @@ app.get('/camera', function (req, res) {
                         "Permission": permission,
                 })
                 //send email
+                var mailDoorAccess = {
+                    from: 'vthung122@gmail.com',
+                    to: 'vutuanhung@outlook.com',
+                    subject: 'Door Accessing',
+                    text: detectPerson+ ' is just accessed main door!'
+                };
                 transporter.sendMail(mailDoorAccess, function(error, info){
                     if (error) {
                         console.log(error);
