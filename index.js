@@ -18,6 +18,30 @@ var mqttClient = mqtt.connect ('mqtt://localhost:3000')
 var receivedMessage
 var topicStr
 
+//setup for emailing
+var nodemailer = require('nodemailer')
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'vthung122@gmail.com',
+        pass: 'ktxBK@497hoahao'
+    }
+});
+
+var mailMotion = {
+    from: 'vthung122@gmail.com',
+    to: 'vutuanhung@outlook.com',
+    subject: 'Motion Alert',
+    text: 'Motion detected in your house, please check your security camera!'
+};
+var mailDoorAccess = {
+    from: 'vthung122@gmail.com',
+    to: 'vutuanhung@outlook.com',
+    subject: 'Door Accessing',
+    text: 'Door is just accessed by ' + detectPerson
+};
+
 //vars for handleImage pages
 var fs = require ('fs')
 var pathToImgArray = []
@@ -466,6 +490,14 @@ MongoClient.connect(mongourl, function(err, db) {
                 "Year": myTodayDate().year,
                 "Permission": "allowed",
             })
+
+            transporter.sendMail(mailDoorAccess, function(error, info){
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
         }
         loadStateFromSystem()
         //console.log('Received Topic: ', topicStr)
@@ -1641,6 +1673,14 @@ app.get('/camera', function (req, res) {
                         "Year": detectYear,
                         "Permission": permission,
                 })
+                //send email
+                transporter.sendMail(mailDoorAccess, function(error, info){
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        console.log('Email sent: ' + info.response);
+                    }
+                });
             })
 
 
@@ -1778,8 +1818,14 @@ app.get('/motion', function (req, res) {
                                 return
                         }
                         //TODO: implement SIM module to receive alert
-                        //TODO: send email to users after motion detected
                         mqttClient.publish('toEsp/detect/human', "on")
+                        transporter.sendMail(mailMotion, function(error, info){
+                            if (error) {
+                                console.log(error);
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                            }
+                        });
                     }, 5000)
 
 
